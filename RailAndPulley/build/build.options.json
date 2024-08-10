@@ -1,0 +1,9 @@
+{
+  "additionalFiles": "../..,../..",
+  "compiler.optimization_flags": "",
+  "customBuildProperties": "compiler.cpp.extra_flags=-std=c++14,build.warn_data_percentage=75",
+  "fqbn": "arduino:avr:uno",
+  "hardwareFolders": "/home/jambox/.arduino15/packages",
+  "otherLibrariesFolders": "/home/jambox/Arduino/libraries",
+  "sketchLocation": "/home/jambox/dev/g_art_proj/RailAndPulley"
+}

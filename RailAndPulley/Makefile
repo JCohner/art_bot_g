@@ -1,7 +1,6 @@
 
 compile:
-	@arduino-cli compile --output-dir bin --fqbn arduino:avr:uno \
-	--build-property "compiler.cpp.extra_flags=-std=c++14" -v --build-path build .
+	@arduino-cli compile --output-dir bin --fqbn arduino:avr:uno -v --build-path build .
 
 deploy:
 	# can parse `arduino-cli board list` with awk if needed 

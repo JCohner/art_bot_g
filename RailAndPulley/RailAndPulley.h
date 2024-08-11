@@ -3,6 +3,12 @@
 
 class RailAndPulley {
 public:
+  void tick();
+  RailAndPulley() {
+    previous_state = NOT_INIT;
+    current_state = NOT_INIT;
+  }
+private:
   enum State {NOT_INIT, 
               HOMING, 
               HOMED,  
@@ -13,11 +19,11 @@ public:
               COMMANDING_ARM,
               ARM_SWEEP_DONE,
               COMMANDING_LOWER_RUG,
-              RUG_LOWERED};
-  volatile State previous_state = NOT_INIT; // this is largely used as a gate variable to ensure we only send command once
-  volatile State current_state = NOT_INIT;
+              RUG_LOWERED
+            };
+  volatile State previous_state; // this is largely used as a gate variable to ensure we only send command once
+  volatile State current_state;
 
-  void tick();
   void command_home();
   void wait_for_home();
   void command_move_to_sweep();

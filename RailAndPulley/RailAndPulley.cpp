@@ -1,6 +1,4 @@
 #include "RailAndPulley.h"
-#include <Arduino.h>
-
 /*
 Josh Cohen
 
@@ -68,12 +66,22 @@ void RailAndPulley::wait_for_home(){
     Serial.println("Waiting for home...");
     previous_state = RailAndPulley::State::HOMING;
   }
+  
+  /*
+  TODO: We should instead have a jog call (i think runSpeed()) in the command section 
+  and then just wait to detect homing switch, this is fine for now.
+  NOTE: MAKES HOMING SPEED DEPENDENT ON LOOP SPEED FOR NOW
+  */
+  stepperX.moveTo(initial_homing);
+  initial_homing+=1;  
+  stepperX.run();
 
-  // Circumventing drive for detecting home.
-  if (digitalRead(HOMING_PIN)){
+  // Circumventing drive for detecting home
+  //NOTE: pin set to INPUT_PULLUP the switch pulls the signal down so we need to check when it goes low.
+  if (!digitalRead(RAIL_HOMING_PIN)){ 
     // increment current state to indicate home reached
     current_state = RailAndPulley::State::HOMED;
-    Serial.println("HOMED");
+    Serial.print("HOMED at pos: "); Serial.print(initial_homing); Serial.println(" ");
   }
 }
 
@@ -190,4 +198,9 @@ void RailAndPulley::start_from_beggining(){
   Serial.println("Lets give it another go...");
   previous_state = NOT_INIT;
   current_state = NOT_INIT;
+}
+
+// Stepper related helper functions
+void RailAndPulley::setup_stepper_pins(){
+   pinMode(RAIL_HOMING_PIN, INPUT_PULLUP);
 }

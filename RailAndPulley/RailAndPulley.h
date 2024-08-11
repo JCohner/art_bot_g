@@ -22,7 +22,9 @@ public:
 private:
   enum State {NOT_INIT, 
               HOMING, 
-              HOMED,  
+              HOMED,
+              MOVING_TO_HOME_OFFSET,
+              AT_HOME_OFFSET,  
               MOVING_TO_SWEEP, 
               AT_SWEEP, 
               LIFTING_RUG, 
@@ -35,20 +37,30 @@ private:
   volatile State previous_state; // this is largely used as a gate variable to ensure we only send command once
   volatile State current_state;
 
+  // stepper helper functions
   void setup_stepper(); // TODO unused ATM
   void setup_stepper_pins();
 
 
+  // sequencing function
   void command_home();
   void wait_for_home();
+
+  void command_move_to_home_offset();
+  void wait_for_move_to_home_offset();
+
   void command_move_to_sweep();
   void wait_for_move_to_sweep();
+  
   void command_rug_lift();
   void wait_for_rug_lift();
+  
   void command_arm_sweep();
   void wait_for_arm_sweep();
+  
   void command_lower_rug();
   void wait_for_lower_rug();
+  
   void start_from_beggining();
 
   /* Pins */

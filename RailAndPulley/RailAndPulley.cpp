@@ -19,6 +19,12 @@ void RailAndPulley::tick(){
       wait_for_home();
       break;
     case HOMED:
+      command_move_to_home_offset();
+      break;
+    case MOVING_TO_HOME_OFFSET:
+      wait_for_move_to_home_offset();
+      break;
+    case AT_HOME_OFFSET:
       command_move_to_sweep();
       break;
     case MOVING_TO_SWEEP:
@@ -48,7 +54,7 @@ void RailAndPulley::tick(){
   }
 }
 
-// Send the command to home.
+// Send the command to home. (NOT ACTUALLY USED ATM)
 // Intended to transition from NOT_INIT -> HOMING state to indicate homing command sent.
 void RailAndPulley::command_home(){
   Serial.println("Sending homing command..."); 
@@ -82,6 +88,51 @@ void RailAndPulley::wait_for_home(){
     // increment current state to indicate home reached
     current_state = RailAndPulley::State::HOMED;
     Serial.print("HOMED at pos: "); Serial.print(initial_homing); Serial.println(" ");
+  }
+}
+
+// Send the command to home.offset (NOT ACTUALLY USED ATM)
+// Intended to transition from HOMED -> MOVING_TO_HOME_OFFSET state to indicate homing command sent.
+void RailAndPulley::command_move_to_home_offset(){
+  Serial.println("Sending move to home offset command..."); 
+  // Cheff off homing commands 
+  // NOTE: needed setup for the ensuing operation to work
+  stepperX.setCurrentPosition(0); // Set the current position as zero for now
+  stepperX.setMaxSpeed(200.0);  // Set Max Speed of Stepper (Slower to get better accuracy)
+  stepperX.setAcceleration(200.0);  // Set Acceleration of Stepper
+  initial_homing=-1;  // Go CCW
+
+  // Increment state to HOMING
+  previous_state = current_state; // cache HOMED
+  current_state = RailAndPulley::State::MOVING_TO_HOME_OFFSET;
+}
+
+// Check if home offset position has been reached
+// Intended to transition from MOVING_TO_HOME_OFFSET -> AT_HOME_OFFSET to indicate home has been reached
+void RailAndPulley::wait_for_move_to_home_offset(){
+  // print once gate
+  if (previous_state == RailAndPulley::State::HOMED){
+    Serial.println("Waiting for home...");
+    previous_state = RailAndPulley::State::MOVING_TO_HOME_OFFSET;
+  }
+  
+  /*
+  TODO: We should instead have a jog call (i think runSpeed()) in the command section 
+  and then just wait to detect homing switch, this is fine for now.
+  NOTE: MAKES HOMING SPEED DEPENDENT ON LOOP SPEED FOR NOW
+  */
+  stepperX.moveTo(initial_homing);
+  initial_homing-=1;  
+  stepperX.run();
+
+  // Circumventing drive for detecting home
+  //NOTE: pin set to INPUT_PULLUP the switch pulls the signal down so we need to check when it goes low.
+  if (digitalRead(RAIL_HOMING_PIN)){ 
+    // increment current state to indicate home reached
+    current_state = RailAndPulley::State::AT_HOME_OFFSET;
+    Serial.print("AT HOME OFFSET");
+    // NOTE: I don't understand this but it works
+    stepperX.setCurrentPosition(7600);  // 7600 is the furthest left end of the rail
   }
 }
 

@@ -20,20 +20,28 @@ public:
     setup_stepper_pins();
   }
 private:
-  enum State {NOT_INIT, 
-              HOMING, 
-              HOMED,
-              MOVING_TO_HOME_OFFSET,
-              AT_HOME_OFFSET,  
-              MOVING_TO_SWEEP, 
-              AT_SWEEP, 
-              LIFTING_RUG, 
-              RUG_LIFTED, 
-              COMMANDING_ARM,
-              ARM_SWEEP_DONE,
-              COMMANDING_LOWER_RUG,
-              RUG_LOWERED
-            };
+  enum State {
+    NOT_INIT, 
+    HOMING, 
+    HOMED,
+    MOVING_TO_HOME_OFFSET,
+    AT_HOME_OFFSET,  
+    MOVING_TO_SWEEP, 
+    AT_SWEEP, 
+    LIFTING_RUG, 
+    RUG_LIFTED, 
+    COMMANDING_ARM,
+    ARM_SWEEP_DONE,
+    COMMANDING_LOWER_RUG,
+    RUG_LOWERED
+  };
+
+  enum Position {
+    POSITION_1 = 1,
+    POSITION_2 = 2500,
+    POSITION_3 = 7000
+  };
+  
   volatile State previous_state; // this is largely used as a gate variable to ensure we only send command once
   volatile State current_state;
 

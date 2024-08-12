@@ -98,8 +98,6 @@ void RailAndPulley::command_move_to_home_offset(){
   // Cheff off homing commands 
   // NOTE: needed setup for the ensuing operation to work
   stepperX.setCurrentPosition(0); // Set the current position as zero for now
-  stepperX.setMaxSpeed(200.0);  // Set Max Speed of Stepper (Slower to get better accuracy)
-  stepperX.setAcceleration(200.0);  // Set Acceleration of Stepper
   initial_homing=-1;  // Go CCW
 
   // Increment state to HOMING
@@ -130,20 +128,20 @@ void RailAndPulley::wait_for_move_to_home_offset(){
   if (digitalRead(RAIL_HOMING_PIN)){ 
     // increment current state to indicate home reached
     current_state = RailAndPulley::State::AT_HOME_OFFSET;
-    Serial.print("AT HOME OFFSET");
-    // NOTE: I don't understand this but it works
+    Serial.println("AT HOME OFFSET");
     stepperX.setCurrentPosition(7600);  // 7600 is the furthest left end of the rail
   }
 }
 
 // Send command to move to sweep
-// Intended to transition from HOMED -> MOVING_TO_SWEEP to indicate moving to sweep command has been sent
+// Intended to transition from AT_HOME_OFFSET -> MOVING_TO_SWEEP to indicate moving to sweep command has been sent
 void RailAndPulley::command_move_to_sweep(){
-  Serial.println("Sending move to sweep command..."); 
-  // Cheff off move to sweep command
-  ;
+  Serial.println("Move to sweep command..."); 
+  // Cheff off move to sweep command (not quite it just sets an internal count, .run() is required to actually move)  
+  stepperX.moveTo(POSITION_1);
+
   // Increment state to MOVING_TO_SWEEP
-  previous_state = current_state; // cache HOMED
+  previous_state = current_state; // cache AT_HOME_OFFSET
   current_state = RailAndPulley::State::MOVING_TO_SWEEP;
 }
 
@@ -151,13 +149,17 @@ void RailAndPulley::command_move_to_sweep(){
 // Intended to transition from MOVING_TO_SWEEP -> AT_SWEEP to indicate we have reached the sweep position
 void RailAndPulley::wait_for_move_to_sweep(){
   // print once gate
-  if (previous_state == RailAndPulley::State::HOMED){
+  if (previous_state == RailAndPulley::State::AT_HOME_OFFSET){
     Serial.println("Waiting for move to sweep...");
     previous_state = RailAndPulley::State::MOVING_TO_SWEEP;
   }
 
+  // As per library specification this has to be called once per loop. We could circumevent if really needed for more constant speed thangs.
+  stepperX.run();
+
+  int pos_difference = POSITION_1 - stepperX.currentPosition();
   // Whatever mechanism we use to detect at sweep pos
-  if (digitalRead(SWEEP_PIN)){
+  if (pos_difference == 0){
     // increment current state to indicate at home
     current_state = RailAndPulley::State::AT_SWEEP;
     Serial.println("AT SWEEP");

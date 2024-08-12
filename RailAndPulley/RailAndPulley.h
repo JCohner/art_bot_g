@@ -2,22 +2,23 @@
 #define __RAILANDPULLEY_H__
 
 #include <Arduino.h>
+#include <Servo.h>
 #include "AccelStepper.h"
 
 class RailAndPulley {
 public:
   void tick();
   RailAndPulley() {
-    previous_state = NOT_INIT;
-    current_state = NOT_INIT;
-
-
+    previous_state = AT_SWEEP;
+    current_state = AT_SWEEP;
 
     // Initialize stepper object and set it up
     stepperX = AccelStepper(1, 9, 8);
     stepperX.setMaxSpeed(200.0);  // Set Max Speed of Stepper (Slower to get better accuracy)
     stepperX.setAcceleration(200.0);  // Set Acceleration of Stepper
     setup_stepper_pins();
+
+    pulleyServo.attach(PULLEY_SERVO_PIN);
   }
 private:
   enum State {
@@ -36,12 +37,17 @@ private:
     RUG_LOWERED
   };
 
-  enum Position {
+  enum RailPosition {
     POSITION_1 = 1,
     POSITION_2 = 2500,
     POSITION_3 = 7000
   };
-  
+
+  enum PulleyPosition {
+    LIFT = 2, // TODO figure out good number
+    LOWER = 244 // TODO figure out good number
+  };
+
   volatile State previous_state; // this is largely used as a gate variable to ensure we only send command once
   volatile State current_state;
 
@@ -82,6 +88,11 @@ private:
   // We increment this value until it reaches home
   int initial_homing = 1; 
 
+  Servo pulleyServo;
+  const int PULLEY_SERVO_PIN = 5;
+
+  long lift_timer = 0;
+  const int AMOUNT_OF_TIME_TO_LIFT_FOR_US = 3000000;
 }; 
 
 #endif /* __RAILANDPULLEY_H__ */

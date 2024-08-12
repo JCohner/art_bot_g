@@ -12,41 +12,41 @@ Likely the Serial.writes will have to be commented out.
 
 void RailAndPulley::tick(){
   switch(current_state){
-    case NOT_INIT:
-      command_home();
-      break;
-    case HOMING:
-      wait_for_home();
-      break;
-    case HOMED:
-      command_move_to_home_offset();
-      break;
-    case MOVING_TO_HOME_OFFSET:
-      wait_for_move_to_home_offset();
-      break;
-    case AT_HOME_OFFSET:
-      command_move_to_sweep();
-      break;
-    case MOVING_TO_SWEEP:
-      wait_for_move_to_sweep();
-      break;
+    // case NOT_INIT:
+    //   command_home();
+    //   break;
+    // case HOMING:
+    //   wait_for_home();
+    //   break;
+    // case HOMED:
+    //   command_move_to_home_offset();
+    //   break;
+    // case MOVING_TO_HOME_OFFSET:
+    //   wait_for_move_to_home_offset();
+    //   break;
+    // case AT_HOME_OFFSET:
+    //   command_move_to_sweep();
+    //   break;
+    // case MOVING_TO_SWEEP:
+    //   wait_for_move_to_sweep();
+    //   break;
     case AT_SWEEP:
       command_rug_lift();
       break;
     case LIFTING_RUG:
-      wait_for_rug_lift();
+      wait_for_rug_lift(); // TODO: G make this shit happen
       break;
     case RUG_LIFTED:
-      command_arm_sweep();
+      command_arm_sweep(); // TODO: G make this shit happen
       break;
-    case COMMANDING_ARM:
-      wait_for_arm_sweep();
-      break;
-    case ARM_SWEEP_DONE:
-      command_lower_rug();
-      break;
+    // case COMMANDING_ARM:
+    //   wait_for_arm_sweep();
+    //   break;
+    // case ARM_SWEEP_DONE:
+    //   command_lower_rug();
+    //   break;
     case COMMANDING_LOWER_RUG:
-      wait_for_lower_rug();
+      wait_for_lower_rug(); // TODO: G make this shit happen
       break;
     case RUG_LOWERED:
       start_from_beggining(); // TODO: may be inelegant, start from home we can decide if theres a cooler way in future
@@ -157,7 +157,7 @@ void RailAndPulley::wait_for_move_to_sweep(){
   // As per library specification this has to be called once per loop. We could circumevent if really needed for more constant speed thangs.
   stepperX.run();
 
-  int pos_difference = POSITION_1 - stepperX.currentPosition();
+  int pos_difference = RailPosition::POSITION_1 - stepperX.currentPosition();
   // Whatever mechanism we use to detect at sweep pos
   if (pos_difference == 0){
     // increment current state to indicate at home
@@ -171,7 +171,7 @@ void RailAndPulley::wait_for_move_to_sweep(){
 void RailAndPulley::command_rug_lift(){
   Serial.println("Commanding rug lift..."); 
   // Cheff off command to lift rug
-  ;
+  pulleyServo.write(PulleyPosition::LIFT);
   // Increment state to LIFTING_RUG
   previous_state = current_state; // cache AT_SWEEP
   current_state = RailAndPulley::State::LIFTING_RUG;
@@ -183,10 +183,11 @@ void RailAndPulley::wait_for_rug_lift(){
   if (previous_state == RailAndPulley::State::AT_SWEEP){
     Serial.println("Lifting rug...");
     previous_state = RailAndPulley::State::LIFTING_RUG;
+    lift_timer = micros();
   }
 
   // Whatever mechanism we use to detect at sweep pos
-  if (digitalRead(RUG_LIFT_PIN)){
+  if ((micros() - lift_timer) > AMOUNT_OF_TIME_TO_LIFT_FOR_US){
     // increment current state to indicate at home
     current_state = RailAndPulley::State::RUG_LIFTED;
     Serial.println("RUG LIFTED");

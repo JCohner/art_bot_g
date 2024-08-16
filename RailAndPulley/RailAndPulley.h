@@ -18,7 +18,10 @@ public:
     stepperX.setAcceleration(200.0);  // Set Acceleration of Stepper
     setup_stepper_pins();
 
+    // Initialize pulley servo object
     pulleyServo.attach(PULLEY_SERVO_PIN);
+    pulleyServo.write(PulleyPosition::STOP);
+    pinMode(PULLEY_HOME_SWITCH, INPUT_PULLUP);
   }
 private:
   enum State {
@@ -44,8 +47,9 @@ private:
   };
 
   enum PulleyPosition {
-    LIFT = 2, // TODO figure out good number
-    LOWER = 244 // TODO figure out good number
+    STOP = 94,// This is the stop value for the servo when on continuous mode
+    LIFT = 135, // In continous mode this instructs the servo to lift in the correct direction: CCW
+    LOWER = 45 // Continous mode CW command
   };
 
   volatile State previous_state; // this is largely used as a gate variable to ensure we only send command once
@@ -90,9 +94,13 @@ private:
 
   Servo pulleyServo;
   const int PULLEY_SERVO_PIN = 5;
+  const int PULLEY_HOME_SWITCH = 3;
+
 
   long lift_timer = 0;
   const int AMOUNT_OF_TIME_TO_LIFT_FOR_US = 3000000;
+
+
 }; 
 
 #endif /* __RAILANDPULLEY_H__ */

@@ -183,11 +183,10 @@ void RailAndPulley::wait_for_rug_lift(){
   if (previous_state == RailAndPulley::State::AT_SWEEP){
     Serial.println("Lifting rug...");
     previous_state = RailAndPulley::State::LIFTING_RUG;
-    lift_timer = micros();
   }
 
   // Whatever mechanism we use to detect at sweep pos
-  if ((micros() - lift_timer) > AMOUNT_OF_TIME_TO_LIFT_FOR_US){
+  if (!digitalRead(PULLEY_HOME_SWITCH)){
     // increment current state to indicate at home
     current_state = RailAndPulley::State::RUG_LIFTED;
     Serial.println("RUG LIFTED");

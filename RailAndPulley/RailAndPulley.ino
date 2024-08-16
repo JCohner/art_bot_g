@@ -10,7 +10,6 @@ ISR(TIMER1_OVF_vect)
 {
   TCNT1 = 45535; // Timer Preloading
   // Handle The 10ms Timer Interrupt
-
   // This triggers the tick function of the robot to check state
   robot.tick();
 }

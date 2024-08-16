@@ -1,10 +1,9 @@
 #include <avr/io.h>
 #include "RailAndPulley.h"
-
-int LED_pin = 13;
-volatile int val = 0;
+//#include <Servo.h>
 
 RailAndPulley robot;
+//Servo pulleyServo;
 
 ISR(TIMER2_OVF_vect)
 {
@@ -22,9 +21,11 @@ void setup()
   TCCR2B |= B00000111;  // Prescaler = 1024
   TCNT2 = 99;        // Timer Preloading
   TIMSK2 |= B00000001;  // Enable Timer Overflow Interrupt
-  pinMode(LED_pin, OUTPUT);
   Serial.begin(9600);
-  while (!Serial) {;}
+  
+  //pulleyServo.attach(13);
+  //pulleyServo.write(94);
+  //while (!Serial) {;}
 }
 
 void loop()

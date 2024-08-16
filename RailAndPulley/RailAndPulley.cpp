@@ -31,6 +31,8 @@ void RailAndPulley::tick(){
     //   wait_for_move_to_sweep();
     //   break;
     case AT_SWEEP:
+      pulleyServo.attach(13);
+      pulleyServo.write(94);
       command_rug_lift();
       break;
     case LIFTING_RUG:
@@ -171,7 +173,7 @@ void RailAndPulley::wait_for_move_to_sweep(){
 void RailAndPulley::command_rug_lift(){
   Serial.println("Commanding rug lift..."); 
   // Cheff off command to lift rug
-  pulleyServo.write(PulleyPosition::LIFT);
+  // pulleyServo.write(PulleyPosition::LIFT);
   // Increment state to LIFTING_RUG
   previous_state = current_state; // cache AT_SWEEP
   current_state = RailAndPulley::State::LIFTING_RUG;
@@ -196,7 +198,7 @@ void RailAndPulley::wait_for_rug_lift(){
 // Send command MCU that controls arm to begin sweeping operation
 // Intended to transition from RUG_LIFTED -> COMMANDING_ARM to indicate command for sweep has been sent to other MCU
 void RailAndPulley::command_arm_sweep(){
-  Serial.println("Commanding rug lift..."); 
+  Serial.println("Commanding arm sweep..."); 
   // Here we communicate to other MCU to start sweeping arm
   ;
   // Increment state to MOVING_TO_SWEEP
@@ -208,7 +210,7 @@ void RailAndPulley::command_arm_sweep(){
 // Intended to transition from COMMANDING_ARM -> ARM_SWEEP_DONE to indicate the arm MCU has completed its task
 void RailAndPulley::wait_for_arm_sweep(){
   if (previous_state == RailAndPulley::State::RUG_LIFTED){
-    Serial.println("Lifting rug...");
+    Serial.println("Wait for arm sweep...");
     previous_state = RailAndPulley::State::COMMANDING_ARM;
   }
 
@@ -216,7 +218,7 @@ void RailAndPulley::wait_for_arm_sweep(){
   if (digitalRead(ARM_SWEEP_DONE_PIN)){
     // increment current state to indicate at home
     current_state = RailAndPulley::State::ARM_SWEEP_DONE;
-    Serial.println("RUG LIFTED");
+    Serial.println("Arm swept");
   }
 }
 

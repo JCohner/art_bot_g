@@ -5,6 +5,8 @@
 #include <Servo.h>
 #include "AccelStepper.h"
 
+static Servo pulleyServo; 
+
 class RailAndPulley {
 public:
   void tick();
@@ -19,9 +21,7 @@ public:
     setup_stepper_pins();
 
     // Initialize pulley servo object
-    pulleyServo.attach(PULLEY_SERVO_PIN);
-    pulleyServo.write(PulleyPosition::STOP);
-    pinMode(PULLEY_HOME_SWITCH, INPUT_PULLUP);
+    // pinMode(PULLEY_HOME_SWITCH, INPUT_PULLUP);
   }
 private:
   enum State {
@@ -92,7 +92,7 @@ private:
   // We increment this value until it reaches home
   int initial_homing = 1; 
 
-  Servo pulleyServo;
+  // Servo pulleyServo;
   const int PULLEY_SERVO_PIN = 5;
   const int PULLEY_HOME_SWITCH = 3;
 

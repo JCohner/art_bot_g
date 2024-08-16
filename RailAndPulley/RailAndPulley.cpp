@@ -173,7 +173,7 @@ void RailAndPulley::wait_for_move_to_sweep(){
 void RailAndPulley::command_rug_lift(){
   Serial.println("Commanding rug lift..."); 
   // Cheff off command to lift rug
-  // pulleyServo.write(PulleyPosition::LIFT);
+  pulleyServo.write(PulleyPosition::LIFT);
   // Increment state to LIFTING_RUG
   previous_state = current_state; // cache AT_SWEEP
   current_state = RailAndPulley::State::LIFTING_RUG;

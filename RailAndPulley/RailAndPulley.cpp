@@ -18,24 +18,24 @@ void RailAndPulley::setup(){
 
 void RailAndPulley::tick(){
   switch(current_state){
-    // case NOT_INIT:
-    //   command_home();
-    //   break;
-    // case HOMING:
-    //   wait_for_home();
-    //   break;
-    // case HOMED:
-    //   command_move_to_home_offset();
-    //   break;
-    // case MOVING_TO_HOME_OFFSET:
-    //   wait_for_move_to_home_offset();
-    //   break;
-    // case AT_HOME_OFFSET:
-    //   command_move_to_sweep();
-    //   break;
-    // case MOVING_TO_SWEEP:
-    //   wait_for_move_to_sweep();
-    //   break;
+    case NOT_INIT:
+      command_home();
+      break;
+    case HOMING:
+      wait_for_home();
+      break;
+    case HOMED:
+      command_move_to_home_offset();
+      break;
+    case MOVING_TO_HOME_OFFSET:
+      wait_for_move_to_home_offset();
+      break;
+    case AT_HOME_OFFSET:
+      command_move_to_sweep();
+      break;
+    case MOVING_TO_SWEEP:
+      wait_for_move_to_sweep();
+      break;
     case AT_SWEEP:
       command_rug_lift();
       break;
@@ -43,12 +43,12 @@ void RailAndPulley::tick(){
       wait_for_rug_lift(); // TODO: G make this shit happen
       break;
     case RUG_LIFTED:
-    //   command_arm_sweep(); // TODO: G make this shit happen
-    //   break;
-    // // case COMMANDING_ARM:
-    // //   wait_for_arm_sweep();
-    // //   break;
-    // // case ARM_SWEEP_DONE:
+      command_arm_sweep(); // TODO: G make this shit happen
+      break;
+    case COMMANDING_ARM:
+      wait_for_arm_sweep();
+      break;
+    case ARM_SWEEP_DONE:
       command_lower_rug();
       break;
     case COMMANDING_LOWER_RUG:
@@ -234,7 +234,7 @@ void RailAndPulley::command_lower_rug(){
   // Here we communicate to the rug pulley motor to lower rug
   pulleyServo.write(PulleyPosition::LOWER);
   // Increment state to COMMANDING_LOWER_RUG
-  previous_state = RailAndPulley::State::ARM_SWEEP_DONE;//current_state; // cache ARM_SWEEP_DONE
+  previous_state = current_state; // cache ARM_SWEEP_DONE
   current_state = RailAndPulley::State::COMMANDING_LOWER_RUG;
 }
 
@@ -245,7 +245,7 @@ void RailAndPulley::wait_for_lower_rug(){
     previous_state = RailAndPulley::State::COMMANDING_LOWER_RUG;
     lift_timer = micros();
     Serial.println("Lowering rug. Current mircos ");
-    return;
+    return; // TODO i think I can take out now
   }
 
   // NOTE: This was really weird, counting was super difficult. For some reason at a certain point it stopped counting well ~11 million. Maybe has to do with how math was done at CPU level? Not sure play with this

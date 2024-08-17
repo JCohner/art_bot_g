@@ -12,8 +12,8 @@ public:
   void tick();
   void setup();
   RailAndPulley() {
-    previous_state = AT_SWEEP;
-    current_state = AT_SWEEP;
+    previous_state = NOT_INIT;
+    current_state = NOT_INIT;
   }
 private:
   enum State {
@@ -76,10 +76,6 @@ private:
   /* Pins */
   const int RAIL_HOMING_PIN = 2;
   int SWEEP_PIN = 11; // TODO: more likely this is going to be an encoder read command or hall sensor
-  int RUG_LIFT_PIN = 10; // TODO: more likely this is going to be an encoder read command or hall sensor
-  int ARM_SWEEP_DONE_PIN = 9; // TODO this mocks hearing back from the other MCU that arm sweep is done
-  int RUG_LOWER_PIN = 8; // TODO: more likely this is going to be an encoder read command or hall sensor
-
   AccelStepper stepperX;
   // We increment this value until it reaches home
   int initial_homing = 1; 

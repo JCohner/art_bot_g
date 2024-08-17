@@ -248,6 +248,7 @@ void RailAndPulley::wait_for_lower_rug(){
     return;
   }
 
+  // NOTE: This was really weird, counting was super difficult. For some reason at a certain point it stopped counting well ~11 million. Maybe has to do with how math was done at CPU level? Not sure play with this
   unsigned long current_ms = micros();
   long delta = current_ms - lift_timer;
   if (delta % 10000000){
@@ -257,7 +258,7 @@ void RailAndPulley::wait_for_lower_rug(){
  
   // // Whatever mechanism we use to detect at sweep pos
   Serial.println(ten_count);
-  if (ten_count > 2000){
+  if (ten_count > AMOUNT_OF_TEN_COUNTS){
     // increment current state to indicate at home
     current_state = RailAndPulley::State::RUG_LOWERED;
     pulleyServo.write(PulleyPosition::STOP);

@@ -90,7 +90,8 @@ private:
 
 
   unsigned long lift_timer = 0;
-  unsigned long AMOUNT_OF_TIME_TO_LIFT_FOR_MS = 10000000;
+  int ten_count = 0;
+  unsigned long AMOUNT_OF_TIME_TO_LIFT_FOR_MS = 20000000;
 
 
 }; 

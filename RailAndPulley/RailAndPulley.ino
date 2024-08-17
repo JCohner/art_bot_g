@@ -4,9 +4,9 @@
 
 RailAndPulley robot;
 
-ISR(TIMER2_OVF_vect)
+ISR(TIMER2_COMPA_vect)
 {
-  TCNT2 = 99; // Timer Preloading
+  OCR2A += 156;// Timer Preloading
   // Handle The 10ms Timer Interrupt
   // This triggers the tick function of the robot to check state
   robot.tick();
@@ -18,8 +18,8 @@ void setup()
   TCCR2A = 0;           // Init Timer2A
   TCCR2B = 0;           // Init Timer2B
   TCCR2B |= B00000111;  // Prescaler = 1024
-  TCNT2 = 99;        // Timer Preloading
-  TIMSK2 |= B00000001;  // Enable Timer Overflow Interrupt
+  OCR2A = 156;        // Timer Compare2A Register
+  TIMSK2 |= B00000010;  // Enable Timer COMPA Interrupt
   Serial.begin(9600);
 
   robot.setup();

@@ -250,15 +250,19 @@ void RailAndPulley::wait_for_lower_rug(){
 
   unsigned long current_ms = micros();
   long delta = current_ms - lift_timer;
-  Serial.println(delta);
-  // long delta = current_ms - lift_timer;
-  // Serial.print("Millis: ");Serial.print((current_ms));Serial.print(" lift time: ");
-  // Serial.print(lift_timer); Serial.print(" Delta: "); Serial.println(delta);
+  if (delta % 10000000){
+    ten_count++;
+    lift_timer = current_ms;
+  }
+ 
   // // Whatever mechanism we use to detect at sweep pos
-  if ((current_ms - lift_timer) > AMOUNT_OF_TIME_TO_LIFT_FOR_MS){
+  Serial.println(ten_count);
+  if (ten_count > 2000){
     // increment current state to indicate at home
     current_state = RailAndPulley::State::RUG_LOWERED;
+    pulleyServo.write(PulleyPosition::STOP);
     Serial.println("RUG LOWERED");
+    ten_count = 0;
   }
 }
 

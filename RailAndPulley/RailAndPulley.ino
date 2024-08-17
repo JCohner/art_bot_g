@@ -3,7 +3,6 @@
 //#include <Servo.h>
 
 RailAndPulley robot;
-//Servo pulleyServo;
 
 ISR(TIMER2_OVF_vect)
 {
@@ -22,10 +21,9 @@ void setup()
   TCNT2 = 99;        // Timer Preloading
   TIMSK2 |= B00000001;  // Enable Timer Overflow Interrupt
   Serial.begin(9600);
-  
-  //pulleyServo.attach(13);
-  //pulleyServo.write(94);
-  //while (!Serial) {;}
+
+  robot.setup();
+  while (!Serial) {;}
 }
 
 void loop()

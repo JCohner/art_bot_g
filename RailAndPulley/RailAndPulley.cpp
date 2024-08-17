@@ -10,6 +10,12 @@ The tick function should be called at a fixed frequency from a timer interupt.
 Likely the Serial.writes will have to be commented out. 
 */
 
+void RailAndPulley::setup(){
+  setup_stepper();
+  setup_servo();
+  //Serial.println("Setup servo and stepper");
+}
+
 void RailAndPulley::tick(){
   switch(current_state){
     // case NOT_INIT:
@@ -31,22 +37,20 @@ void RailAndPulley::tick(){
     //   wait_for_move_to_sweep();
     //   break;
     case AT_SWEEP:
-      pulleyServo.attach(13);
-      pulleyServo.write(94);
       command_rug_lift();
       break;
     case LIFTING_RUG:
       wait_for_rug_lift(); // TODO: G make this shit happen
       break;
     case RUG_LIFTED:
-      command_arm_sweep(); // TODO: G make this shit happen
+    //   command_arm_sweep(); // TODO: G make this shit happen
+    //   break;
+    // // case COMMANDING_ARM:
+    // //   wait_for_arm_sweep();
+    // //   break;
+    // // case ARM_SWEEP_DONE:
+      command_lower_rug();
       break;
-    // case COMMANDING_ARM:
-    //   wait_for_arm_sweep();
-    //   break;
-    // case ARM_SWEEP_DONE:
-    //   command_lower_rug();
-    //   break;
     case COMMANDING_LOWER_RUG:
       wait_for_lower_rug(); // TODO: G make this shit happen
       break;
@@ -191,7 +195,8 @@ void RailAndPulley::wait_for_rug_lift(){
   if (!digitalRead(PULLEY_HOME_SWITCH)){
     // increment current state to indicate at home
     current_state = RailAndPulley::State::RUG_LIFTED;
-    Serial.println("RUG LIFTED");
+    Serial.println("RUG LIFTED, stopping motion");
+    pulleyServo.write(PulleyPosition::STOP);
   }
 }
 
@@ -227,9 +232,9 @@ void RailAndPulley::wait_for_arm_sweep(){
 void RailAndPulley::command_lower_rug(){
   Serial.println("Commanding rug lower..."); 
   // Here we communicate to the rug pulley motor to lower rug
-  ;
+  pulleyServo.write(PulleyPosition::LOWER);
   // Increment state to COMMANDING_LOWER_RUG
-  previous_state = current_state; // cache ARM_SWEEP_DONE
+  previous_state = RailAndPulley::State::ARM_SWEEP_DONE;//current_state; // cache ARM_SWEEP_DONE
   current_state = RailAndPulley::State::COMMANDING_LOWER_RUG;
 }
 
@@ -237,12 +242,20 @@ void RailAndPulley::command_lower_rug(){
 // Intended to transition from COMMANDING_LOWER_RUG -> RUG_LOWERED to indicate rug has been lowered
 void RailAndPulley::wait_for_lower_rug(){
   if (previous_state == RailAndPulley::State::ARM_SWEEP_DONE){
-    Serial.println("Lowering rug...");
     previous_state = RailAndPulley::State::COMMANDING_LOWER_RUG;
+    lift_timer = micros();
+    Serial.println("Lowering rug. Current mircos ");
+    return;
   }
 
-  // Whatever mechanism we use to detect at sweep pos
-  if (digitalRead(RUG_LOWER_PIN)){
+  unsigned long current_ms = micros();
+  long delta = current_ms - lift_timer;
+  Serial.println(delta);
+  // long delta = current_ms - lift_timer;
+  // Serial.print("Millis: ");Serial.print((current_ms));Serial.print(" lift time: ");
+  // Serial.print(lift_timer); Serial.print(" Delta: "); Serial.println(delta);
+  // // Whatever mechanism we use to detect at sweep pos
+  if ((current_ms - lift_timer) > AMOUNT_OF_TIME_TO_LIFT_FOR_MS){
     // increment current state to indicate at home
     current_state = RailAndPulley::State::RUG_LOWERED;
     Serial.println("RUG LOWERED");
@@ -256,6 +269,16 @@ void RailAndPulley::start_from_beggining(){
 }
 
 // Stepper related helper functions
-void RailAndPulley::setup_stepper_pins(){
-   pinMode(RAIL_HOMING_PIN, INPUT_PULLUP);
+void RailAndPulley::setup_stepper(){
+  // Initialize stepper object and set it up
+  stepperX = AccelStepper(1, 9, 8);
+  stepperX.setMaxSpeed(200.0);  // Set Max Speed of Stepper (Slower to get better accuracy)
+  stepperX.setAcceleration(200.0);  // Set Acceleration of Stepper
+  pinMode(RAIL_HOMING_PIN, INPUT_PULLUP);
+}
+
+void RailAndPulley::setup_servo(){
+      pulleyServo.attach(PULLEY_SERVO_PIN);
+      pulleyServo.write(PulleyPosition::STOP);
+      pinMode(PULLEY_HOME_SWITCH, INPUT_PULLUP);
 }

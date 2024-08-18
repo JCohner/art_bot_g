@@ -70,6 +70,9 @@ void RailAndPulley::tick(){
       wait_for_move_to_pos3();
       break;
     case AT_POS3:
+      wait_at_pos3();
+      break;
+    case WAIT_AT_POS3_DONE: 
       start_from_beggining(); // TODO: may be inelegant, start from home we can decide if theres a cooler way in future
       break;
   }
@@ -191,7 +194,7 @@ void RailAndPulley::wait_at_pos1(){
   if (previous_state == RailAndPulley::State::MOVING_TO_POS1){
     previous_state = RailAndPulley::State::AT_POS1;
     pos1_wait_timer = micros();
-    Serial.println("Lowering rug. Current mircos ");
+    Serial.println("Waiting at pos1");
     return; // TODO i think I can take out now
   }
 
@@ -203,12 +206,16 @@ void RailAndPulley::wait_at_pos1(){
     pos1_wait_timer = current_ms;
   }
  
-  // // Whatever mechanism we use to detect at sweep pos
-  Serial.println(ten_count);
+  static int print_slow = 0;
+  if ((print_slow++ % 20) == 0)
+    Serial.print(".");
+  
+
   if (ten_count > POS1_TIMER_WAIT_CENTI_SECONDS){
+    Serial.println("");
     // increment current state to indicate at home
     current_state = RailAndPulley::State::WAIT_AT_POS1_DONE;
-    Serial.println("Done waiting for pos 1 wait...");
+    Serial.println("Done waiting for pos 1 wait..._");
     ten_count = 0;
   }
 }
@@ -371,6 +378,36 @@ void RailAndPulley::wait_for_move_to_pos3(){
     // increment current state to indicate at home
     current_state = RailAndPulley::State::AT_POS3;
     Serial.println("AT POS3 POSITION");
+  }
+}
+
+void RailAndPulley::wait_at_pos3(){
+  if (previous_state == RailAndPulley::State::MOVING_TO_POS3){
+    previous_state = RailAndPulley::State::AT_POS3;
+    pos3_wait_timer = micros();
+    Serial.println("Waiting at pos3");
+    return; // TODO i think I can take out now
+  }
+
+  // NOTE: This was really weird, counting was super difficult. For some reason at a certain point it stopped counting well ~11 million. Maybe has to do with how math was done at CPU level? Not sure play with this
+  unsigned long current_ms = micros();
+  long delta = current_ms - pos3_wait_timer;
+  if (delta % 10000000){
+    ten_count++;
+    pos3_wait_timer = current_ms;
+  }
+ 
+  static int print_slow = 0;
+  if ((print_slow++ % 20) == 0)
+    Serial.print(".");
+  
+
+  if (ten_count > POS3_TIMER_WAIT_CENTI_SECONDS){
+    Serial.println("");
+    // increment current state to indicate at home
+    current_state = RailAndPulley::State::WAIT_AT_POS3_DONE;
+    Serial.println("Done waiting for pos 3 wait...");
+    ten_count = 0;
   }
 }
 

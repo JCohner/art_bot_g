@@ -32,7 +32,10 @@ private:
     COMMANDING_ARM,
     ARM_SWEEP_DONE,
     COMMANDING_LOWER_RUG,
-    RUG_LOWERED
+    RUG_LOWERED,
+    MOVING_TO_POS3,
+    AT_POS3,
+    WAIT_AT_POS3_DONE,
   };
 
   enum RailPosition {
@@ -70,6 +73,10 @@ private:
   void command_move_to_pos2();
   void wait_for_move_to_pos2();
   
+  void command_move_to_pos3();
+  void wait_for_move_to_pos3();
+  void wait_at_pos3();
+
   void command_rug_lift();
   void wait_for_rug_lift();
   

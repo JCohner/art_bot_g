@@ -64,6 +64,12 @@ void RailAndPulley::tick(){
       wait_for_lower_rug(); // TODO: G make this shit happen
       break;
     case RUG_LOWERED:
+      command_move_to_pos3(); 
+      break;
+    case MOVING_TO_POS3:
+      wait_for_move_to_pos3();
+      break;
+    case AT_POS3:
       start_from_beggining(); // TODO: may be inelegant, start from home we can decide if theres a cooler way in future
       break;
   }
@@ -323,8 +329,12 @@ void RailAndPulley::wait_for_lower_rug(){
   }
  
   // // Whatever mechanism we use to detect at sweep pos
-  Serial.println(ten_count);
+  static int print_slow = 0;
+  if ((print_slow++ % 20) == 0)
+    Serial.print(".");
+  
   if (ten_count > LIFT_TIMER_WAIT_CENTI_SECONDS){
+    Serial.println("");
     // increment current state to indicate at home
     current_state = RailAndPulley::State::RUG_LOWERED;
     pulleyServo.write(PulleyPosition::STOP);
@@ -333,8 +343,40 @@ void RailAndPulley::wait_for_lower_rug(){
   }
 }
 
+void RailAndPulley::command_move_to_pos3(){
+  Serial.println("Move to pos3..."); 
+  // Cheff off move to sweep command (not quite it just sets an internal count, .run() is required to actually move)  
+  stepperX.moveTo(POSITION_3);
+
+  // Increment state to MOVING_TO_SWEEP
+  previous_state = current_state; // cache RUG_LOWERED
+  current_state = RailAndPulley::State::MOVING_TO_POS3;
+}
+
+// Wait for rail to reach sweep position
+// Intended to transition from MOVING_TO_POS2 -> AT_POS2 to indicate we have reached the sweep position
+void RailAndPulley::wait_for_move_to_pos3(){
+  // print once gate
+  if (previous_state == RailAndPulley::State::RUG_LOWERED){
+    Serial.println("Waiting for move to pos3..");
+    previous_state = RailAndPulley::State::MOVING_TO_POS3;
+  }
+
+  // As per library specification this has to be called once per loop. We could circumevent if really needed for more constant speed thangs.
+  stepperX.run();
+
+  int pos_difference = RailPosition::POSITION_3 - stepperX.currentPosition();
+  // Whatever mechanism we use to detect at sweep pos
+  if (pos_difference == 0){
+    // increment current state to indicate at home
+    current_state = RailAndPulley::State::AT_POS3;
+    Serial.println("AT POS3 POSITION");
+  }
+}
+
 void RailAndPulley::start_from_beggining(){
   Serial.println("Lets give it another go...");
+  initial_homing = POSITION_3;
   previous_state = NOT_INIT;
   current_state = NOT_INIT;
 }

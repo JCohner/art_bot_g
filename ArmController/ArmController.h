@@ -42,8 +42,8 @@ private:
     state_ = new_state;
   }
 
-  ArmState state_;
-  ArmState prevState_;
+  volatile ArmState state_;
+  volatile ArmState prevState_;
 
   Servo Shoulder;  // create servo object to control a servo
   Servo UpperArm;

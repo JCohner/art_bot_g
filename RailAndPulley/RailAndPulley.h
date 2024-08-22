@@ -105,8 +105,8 @@ private:
   void start_from_beggining();
 
   // SPI Section 
-  void arm_interaction(ArmInteraction command);
-  ArmInteraction recv_val;
+  void arm_interaction(ArmCommandFromRP command);
+  ArmResponseToRP arm_response;
 
   /* Pins */
   const int RAIL_HOMING_PIN = 2;

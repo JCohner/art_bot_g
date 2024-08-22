@@ -287,7 +287,7 @@ void RailAndPulley::wait_for_rug_lift(){
 void RailAndPulley::command_arm_sweep(){
   Serial.println("Commanding arm sweep..."); 
   // Here we communicate to other MCU to start sweeping arm
-  arm_interaction(BEGIN_SWEEPING);
+  arm_interaction(ArmCommandFromRP::BEGIN_SWEEPING);
   // Increment state to MOVING_TO_SWEEP
   previous_state = current_state; // cache RUG_LIFTED
   current_state = RailAndPulley::State::COMMANDING_ARM;
@@ -301,12 +301,13 @@ void RailAndPulley::wait_for_arm_sweep(){
     previous_state = RailAndPulley::State::COMMANDING_ARM;
   }
 
-  arm_interaction(TELL_ME_WHEN_SWEEP_DONE);
+  arm_interaction(ArmCommandFromRP::TELL_ME_WHEN_SWEEP_DONE);
 
-  // TODO put waiting debug
+  // TODO put better waiting debug
+  Serial.print("Arm state: "); Serial.println(arm_response);
 
   // recv_val is populated by the value returned by the SPI trasnfer invoked in arm_interaction
-  if (recv_val == SWEEP_DONE){
+  if (arm_response == ArmResponseToRP::SWEEP_DONE){
     // increment current state to indicate at home
     current_state = RailAndPulley::State::ARM_SWEEP_DONE;
     Serial.println("Arm swept");
@@ -441,8 +442,8 @@ void RailAndPulley::setup_servo(){
       pinMode(PULLEY_HOME_SWITCH, INPUT_PULLUP);
 }
 
-void RailAndPulley::arm_interaction(ArmInteraction command){
+void RailAndPulley::arm_interaction(ArmCommandFromRP command){
   digitalWrite(SS, LOW); // enable Slave Select
-  recv_val = SPI.transfer (command); // TODO maybe the function should return thsi value as opposed to assigning to a member variable....
+  arm_response = SPI.transfer (command); // TODO maybe the function should return thsi value as opposed to assigning to a member variable....
   digitalWrite(SS, HIGH); // disable Slave Select
 }

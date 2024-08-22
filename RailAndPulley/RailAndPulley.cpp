@@ -34,21 +34,21 @@ void RailAndPulley::tick(){
       wait_for_move_to_home_offset();
       break;
     case AT_HOME_OFFSET:
-    //   command_move_to_pos1();
-    //   break;
-    // case MOVING_TO_POS1:
-    //   wait_for_move_to_pos1();
-    //   break;
-    // case AT_POS1:
-    //   wait_at_pos1();
-    //   break;
-    // case WAIT_AT_POS1_DONE:
-    //   command_move_to_pos2();
-    //   break;
-    // case MOVING_TO_POS2:
-    //   wait_for_move_to_pos2();
-    //   break;
-    // case AT_POS2:
+      command_move_to_pos1();
+      break;
+    case MOVING_TO_POS1:
+      wait_for_move_to_pos1();
+      break;
+    case AT_POS1:
+      wait_at_pos1();
+      break;
+    case WAIT_AT_POS1_DONE:
+      command_move_to_pos2();
+      break;
+    case MOVING_TO_POS2:
+      wait_for_move_to_pos2();
+      break;
+    case AT_POS2:
       command_rug_lift();
       break;
     case LIFTING_RUG:
@@ -66,15 +66,15 @@ void RailAndPulley::tick(){
     case COMMANDING_LOWER_RUG:
       wait_for_lower_rug(); // TODO: G make this shit happen
       break;
-    // case RUG_LOWERED:
-    //   command_move_to_pos3(); 
-    //   break;
-    // case MOVING_TO_POS3:
-    //   wait_for_move_to_pos3();
-    //   break;
-    // case AT_POS3:
-    //   wait_at_pos3();
-    //   break;
+    case RUG_LOWERED:
+      command_move_to_pos3(); 
+      break;
+    case MOVING_TO_POS3:
+      wait_for_move_to_pos3();
+      break;
+    case AT_POS3:
+      wait_at_pos3();
+      break;
     case WAIT_AT_POS3_DONE: 
       start_from_beggining(); // TODO: may be inelegant, start from home we can decide if theres a cooler way in future
       break;
@@ -261,7 +261,7 @@ void RailAndPulley::command_rug_lift(){
   // Cheff off command to lift rug
   pulleyServo.write(PulleyPosition::LIFT);
   // Increment state to LIFTING_RUG
-  previous_state = RailAndPulley::State::AT_POS2; // cache AT_POS2
+  previous_state = current_state; // cache AT_POS2
   current_state = RailAndPulley::State::LIFTING_RUG;
 }
 

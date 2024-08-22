@@ -13,7 +13,10 @@ Likely the Serial.writes will have to be commented out.
 void RailAndPulley::setup(){
   setup_stepper();
   setup_servo();
-  //Serial.println("Setup servo and stepper");
+  Serial.println("Setup servo and stepper");
+   digitalWrite(SS, HIGH); // disable Slave Select // TODO just wire slaves low as it is only one
+   SPI.begin ();
+   SPI.setClockDivider(SPI_CLOCK_DIV8);//divide the clock by 8
 }
 
 void RailAndPulley::tick(){
@@ -431,4 +434,10 @@ void RailAndPulley::setup_servo(){
       pulleyServo.attach(PULLEY_SERVO_PIN);
       pulleyServo.write(PulleyPosition::STOP);
       pinMode(PULLEY_HOME_SWITCH, INPUT_PULLUP);
+}
+
+void RailAndPulley::arm_interaction(ArmInteraction command){
+  digitalWrite(SS, LOW); // enable Slave Select
+  recv_val = SPI.transfer (command);
+  digitalWrite(SS, HIGH); // disable Slave Select
 }

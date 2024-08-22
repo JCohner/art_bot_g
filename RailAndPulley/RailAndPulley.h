@@ -2,6 +2,7 @@
 #define __RAILANDPULLEY_H__
 
 #include <Arduino.h>
+#include <SPI.h>
 #include <Servo.h>
 #include "AccelStepper.h"
 
@@ -51,6 +52,13 @@ private:
     LOWER = 45 // Continous mode CW command
   };
 
+  enum ArmInteraction {
+    BEGIN_SWEEPING = 0,
+    I_AM_SWEEPING = 1, // ONLY EVER SENT FROM ARM
+    TELL_ME_WHEN_SWEEP_DONE = 2,
+    SWEEP_DONE = 3 // ONLY EVER SENT FROM ARM 
+  };
+
   volatile State previous_state; // this is largely used as a gate variable to ensure we only send command once
   volatile State current_state;
 
@@ -88,6 +96,10 @@ private:
   
   void start_from_beggining();
 
+  // SPI Section 
+  void arm_interaction(ArmInteraction command);
+  ArmInteraction recv_val;
+
   /* Pins */
   const int RAIL_HOMING_PIN = 2;
   int SWEEP_PIN = 11; // TODO: more likely this is going to be an encoder read command or hall sensor
@@ -97,7 +109,7 @@ private:
   int initial_homing = 1; 
 
   // Servo pulleyServo;
-  const int PULLEY_SERVO_PIN = 13;
+  const int PULLEY_SERVO_PIN = 6;
   const int PULLEY_HOME_SWITCH = 3;
 
 

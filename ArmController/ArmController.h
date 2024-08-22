@@ -9,14 +9,20 @@ public:
   ArmController(){
     state_ = NOT_INIT;
   }
+
   // TODO this should be defined in two places.. move up a directory and reference
-  enum ArmInteraction {
+  enum ArmCommandFromRP {
     NONE = 0,
     BEGIN_SWEEPING = 1,
-    I_AM_SWEEPING = 2, // ONLY EVER SENT FROM ARM
     TELL_ME_WHEN_SWEEP_DONE = 3,
-    SWEEP_DONE = 4, // ONLY EVER SENT FROM ARM 
-    ERROR = 5
+    START_OVER = 5
+  };
+
+  enum ArmResponseToRP {
+    NOTHING = 0,
+    I_AM_SWEEPING = 2,
+    SWEEP_DONE = 4, 
+    STARTING_OVER = 5
   };
 
   enum ArmState {
@@ -24,14 +30,20 @@ public:
     EXECUTING_COMMAND,
     DONE
   };
+
   void setup();
   void do_arm_animation();
   ArmController::ArmState get_state() {return state_;}
-  ArmController::ArmInteraction interact(ArmController::ArmInteraction command);
+  ArmController::ArmResponseToRP interact(ArmController::ArmCommandFromRP command);
 
 private:
+  void set_state(ArmState new_state) {
+    prevState_ = state_;
+    state_ = new_state;
+  }
 
   ArmState state_;
+  ArmState prevState_;
 
   Servo Shoulder;  // create servo object to control a servo
   Servo UpperArm;

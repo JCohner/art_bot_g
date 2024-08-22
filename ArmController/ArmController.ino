@@ -14,12 +14,12 @@ ArmController Arm;
 
 ISR (SPI_STC_vect) // SPI interrupt routine 
 { 
-   ArmController::ArmInteraction command = SPDR; // read byte from SPI Data Register
+   ArmController::ArmCommandFromRP command = SPDR; // read byte from SPI Data Register
 
-   ArmController::ArmInteraction response = Arm.interact(command);
+   auto arm_response = Arm.interact(command);
 
    // Write out to SPDR
-   SPDR = response;
+   SPDR = arm_response;
 }
 
 void setup() {

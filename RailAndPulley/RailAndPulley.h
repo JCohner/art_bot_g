@@ -53,13 +53,18 @@ private:
   };
 
   // TODO this should be defined in two places.. move up a directory and reference
-  enum ArmInteraction {
+  enum ArmCommandFromRP {
     NONE = 0,
     BEGIN_SWEEPING = 1,
-    I_AM_SWEEPING = 2, // ONLY EVER SENT FROM ARM
     TELL_ME_WHEN_SWEEP_DONE = 3,
-    SWEEP_DONE = 4, // ONLY EVER SENT FROM ARM 
-    ERROR = 5
+    START_OVER = 5
+  };
+
+  enum ArmResponseToRP {
+    NOTHING = 0,
+    I_AM_SWEEPING = 2,
+    SWEEP_DONE = 4, 
+    STARTING_OVER = 5
   };
 
   volatile State previous_state; // this is largely used as a gate variable to ensure we only send command once

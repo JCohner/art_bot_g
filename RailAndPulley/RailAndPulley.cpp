@@ -423,6 +423,7 @@ void RailAndPulley::start_from_beggining(){
   initial_homing = POSITION_3;
   previous_state = NOT_INIT;
   current_state = NOT_INIT;
+  arm_interaction(START_OVER);
 }
 
 // Stepper related helper functions

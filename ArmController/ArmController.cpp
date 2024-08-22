@@ -9,30 +9,36 @@ void ArmController::setup(){
   Wrist.write(30); 
 }
 
-ArmController::ArmInteraction ArmController::interact(ArmInteraction command){
-  ArmInteraction return_val = ERROR;
+ArmController::ArmResponseToRP ArmController::interact(ArmCommandFromRP command){
+  auto return_val = ArmResponseToRP::NOTHING;
   switch (command){
-    case BEGIN_SWEEPING:
+    case ArmCommandFromRP::BEGIN_SWEEPING:
       switch(state_){
-        case NOT_INIT:
-        case DONE:
-          return_val = I_AM_SWEEPING;
+        case ArmState::NOT_INIT:
+        case ArmState::DONE:
+          return_val = ArmResponseToRP::I_AM_SWEEPING;
           Serial.println("Got command to sweep");
-          state_ = EXECUTING_COMMAND; // TOD: could move to begining of do_arm_animation
+          set_state(ArmState::EXECUTING_COMMAND); // TOD: could move to begining of do_arm_animation
           break;
       }
       break;
-    case TELL_ME_WHEN_SWEEP_DONE:
+    case ArmCommandFromRP::TELL_ME_WHEN_SWEEP_DONE:
       switch(state_){
-       case EXECUTING_COMMAND:
-        Serial.println("Was polled, brother I am still sweeping");
-        return_val = I_AM_SWEEPING;
-        break;
-       case DONE:
-        return_val = SWEEP_DONE;
-        Serial.println("Brother we are done");
-        break;
+        case ArmState::EXECUTING_COMMAND:
+          Serial.println("Was polled, brother I am still sweeping");
+          return_val = ArmResponseToRP::I_AM_SWEEPING;
+          break;
+        case ArmState::DONE:
+          return_val = ArmResponseToRP::SWEEP_DONE;
+          Serial.println("Brother we are done");
+          break;
+        default:
+          Serial.print("Brother you have a problem. Asking if sweep but we in state: "); Serial.println(state_);
       }
+      break;
+    case ArmCommandFromRP::START_OVER:
+      Serial.println("Getting command to reinitilize state: ");
+      set_state(ArmState::NOT_INIT);
       break;
   }
   return return_val;
@@ -180,5 +186,5 @@ void ArmController::do_arm_animation(){
     delay(25);                       // waits 15 ms for the servo to reach the position
   }
 
-  state_ = DONE;
+  set_state(ArmState::DONE);
 }

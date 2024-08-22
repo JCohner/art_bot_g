@@ -13,10 +13,13 @@ ArmController::ArmInteraction ArmController::interact(ArmInteraction command){
   ArmInteraction return_val = ERROR;
   switch (command){
     case BEGIN_SWEEPING:
-      if (state_ == NOT_INIT){
-        return_val = I_AM_SWEEPING;
-        Serial.println("Got command to sweep");
-        state_ = EXECUTING_COMMAND; // TOD: could move to begining of do_arm_animation
+      switch(state_){
+        case NOT_INIT:
+        case DONE:
+          return_val = I_AM_SWEEPING;
+          Serial.println("Got command to sweep");
+          state_ = EXECUTING_COMMAND; // TOD: could move to begining of do_arm_animation
+          break;
       }
       break;
     case TELL_ME_WHEN_SWEEP_DONE:

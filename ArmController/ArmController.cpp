@@ -5,6 +5,8 @@ void ArmController::setup(){
   UpperArm.attach(7);
   Elbow.attach(8);
   Wrist.attach(9);
+
+  Wrist.write(30); 
 }
 
 ArmController::ArmInteraction ArmController::interact(ArmInteraction command){
@@ -34,7 +36,6 @@ ArmController::ArmInteraction ArmController::interact(ArmInteraction command){
 }
 
 void ArmController::do_arm_animation(){
-  Wrist.write(30); 
 //delay(55000);
 //delay(10000);
 // UPPER ARM TURN OUT

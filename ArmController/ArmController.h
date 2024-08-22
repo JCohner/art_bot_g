@@ -4,33 +4,30 @@
 #include <Arduino.h>
 #include <Servo.h>
 
-// TODO this should be defined in two places.. move up a directory and reference
-enum ArmInteraction {
-  BEGIN_SWEEPING = 0,
-  I_AM_SWEEPING = 1, // ONLY EVER SENT FROM ARM
-  TELL_ME_WHEN_SWEEP_DONE = 2,
-  SWEEP_DONE = 3, // ONLY EVER SENT FROM ARM 
-  ERROR = 4
-};
-
-enum ArmState {
-  NOT_INIT, 
-  EXECUTING_COMMAND,
-  DONE
-};
 
 class ArmController {
 public:
   ArmController(){
     state_ = NOT_INIT;
   }
+  // TODO this should be defined in two places.. move up a directory and reference
+  enum ArmInteraction {
+    BEGIN_SWEEPING = 0,
+    I_AM_SWEEPING = 1, // ONLY EVER SENT FROM ARM
+    TELL_ME_WHEN_SWEEP_DONE = 2,
+    SWEEP_DONE = 3, // ONLY EVER SENT FROM ARM 
+    ERROR = 4
+  };
 
+  enum ArmState {
+    NOT_INIT, 
+    EXECUTING_COMMAND,
+    DONE
+  };
   void setup();
   void do_arm_animation();
-  ArmState get_state() {return state_;}
-  ArmInteraction interact(ArmInteraction command);
-
-
+  ArmController::ArmState get_state() {return state_;}
+  ArmController::ArmInteraction interact(ArmController::ArmInteraction command);
 
 private:
 

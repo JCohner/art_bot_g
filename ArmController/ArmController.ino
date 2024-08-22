@@ -14,9 +14,9 @@ ArmController Arm;
 
 ISR (SPI_STC_vect) // SPI interrupt routine 
 { 
-   ArmInteraction c = SPDR; // read byte from SPI Data Register
+   ArmController::ArmInteraction c = SPDR; // read byte from SPI Data Register
 
-   ArmInteraction response = Arm.interact(c);
+   ArmController::ArmInteraction response = Arm.interact(c);
 
    // Write out to SPDR
    SPDR = response;
@@ -32,7 +32,7 @@ void setup() {
 }
 
 void loop() {
-  if (Arm.get_state() == ArmState::EXECUTING_COMMAND){
+  if (Arm.get_state() == ArmController::ArmState::EXECUTING_COMMAND){
     Arm.do_arm_animation();
   }
 }

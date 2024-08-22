@@ -7,7 +7,7 @@ void ArmController::setup(){
   Wrist.attach(9);
 }
 
-ArmInteraction ArmController::interact(ArmInteraction command){
+ArmController::ArmInteraction ArmController::interact(ArmInteraction command){
   ArmInteraction return_val = ERROR;
   switch (command){
     case BEGIN_SWEEPING:

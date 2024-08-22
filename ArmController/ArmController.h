@@ -4,7 +4,6 @@
 #include <Arduino.h>
 #include <Servo.h>
 
-
 class ArmController {
 public:
   ArmController(){
@@ -12,11 +11,12 @@ public:
   }
   // TODO this should be defined in two places.. move up a directory and reference
   enum ArmInteraction {
-    BEGIN_SWEEPING = 0,
-    I_AM_SWEEPING = 1, // ONLY EVER SENT FROM ARM
-    TELL_ME_WHEN_SWEEP_DONE = 2,
-    SWEEP_DONE = 3, // ONLY EVER SENT FROM ARM 
-    ERROR = 4
+    NONE = 0,
+    BEGIN_SWEEPING = 1,
+    I_AM_SWEEPING = 2, // ONLY EVER SENT FROM ARM
+    TELL_ME_WHEN_SWEEP_DONE = 3,
+    SWEEP_DONE = 4, // ONLY EVER SENT FROM ARM 
+    ERROR = 5
   };
 
   enum ArmState {

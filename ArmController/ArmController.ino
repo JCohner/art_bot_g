@@ -14,9 +14,9 @@ ArmController Arm;
 
 ISR (SPI_STC_vect) // SPI interrupt routine 
 { 
-   ArmController::ArmInteraction c = SPDR; // read byte from SPI Data Register
+   ArmController::ArmInteraction command = SPDR; // read byte from SPI Data Register
 
-   ArmController::ArmInteraction response = Arm.interact(c);
+   ArmController::ArmInteraction response = Arm.interact(command);
 
    // Write out to SPDR
    SPDR = response;
@@ -32,7 +32,9 @@ void setup() {
 }
 
 void loop() {
+  // TODO maybe a smarter way to trigger this. With gate variable?
   if (Arm.get_state() == ArmController::ArmState::EXECUTING_COMMAND){
     Arm.do_arm_animation();
   }
+  delay(5);
 }

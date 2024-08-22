@@ -303,8 +303,10 @@ void RailAndPulley::wait_for_arm_sweep(){
 
   arm_interaction(TELL_ME_WHEN_SWEEP_DONE);
 
+  // TODO put waiting debug
+
   // recv_val is populated by the value returned by the SPI trasnfer invoked in arm_interaction
-  if (recv_val != SWEEP_DONE){
+  if (recv_val == SWEEP_DONE){
     // increment current state to indicate at home
     current_state = RailAndPulley::State::ARM_SWEEP_DONE;
     Serial.println("Arm swept");

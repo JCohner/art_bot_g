@@ -52,6 +52,7 @@ private:
     LOWER = 45 // Continous mode CW command
   };
 
+  // TODO this should be defined in two places.. move up a directory and reference
   enum ArmInteraction {
     BEGIN_SWEEPING = 0,
     I_AM_SWEEPING = 1, // ONLY EVER SENT FROM ARM

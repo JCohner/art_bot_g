@@ -11,13 +11,16 @@ void ArmController::setup(){
 
 ArmController::ArmResponseToRP ArmController::interact(ArmCommandFromRP command){
   auto return_val = ArmResponseToRP::NOTHING;
+  static int printslow = 0;
+
   switch (command){
     case ArmCommandFromRP::BEGIN_SWEEPING:
       switch(state_){
         case ArmState::NOT_INIT:
         case ArmState::DONE:
           return_val = ArmResponseToRP::I_AM_SWEEPING;
-          Serial.println("Got command to sweep");
+          if ((printslow++ % 10) == 0) 
+            Serial.println("Got command to sweep");
           set_state(ArmState::EXECUTING_COMMAND); // TOD: could move to begining of do_arm_animation
           break;
       }
@@ -25,19 +28,23 @@ ArmController::ArmResponseToRP ArmController::interact(ArmCommandFromRP command)
     case ArmCommandFromRP::TELL_ME_WHEN_SWEEP_DONE:
       switch(state_){
         case ArmState::EXECUTING_COMMAND:
-          Serial.println("Was polled, brother I am still sweeping");
+          if ((printslow++ % 10) == 0) 
+            Serial.println("Was polled, brother I am still sweeping");
           return_val = ArmResponseToRP::I_AM_SWEEPING;
           break;
         case ArmState::DONE:
           return_val = ArmResponseToRP::SWEEP_DONE;
-          Serial.println("Brother we are done");
+          if ((printslow++ % 10) == 0) 
+            Serial.println("Brother we are done");
           break;
         default:
-          Serial.print("Brother you have a problem. Asking if sweep but we in state: "); Serial.println(state_);
+          if ((printslow++ % 10) == 0) 
+            Serial.print("Brother you have a problem. Asking if sweep but we in state: "); Serial.println(state_);
       }
       break;
     case ArmCommandFromRP::START_OVER:
-      Serial.println("Getting command to reinitilize state: ");
+      if ((printslow++ % 10) == 0) 
+        Serial.println("Getting command to reinitilize state: ");
       set_state(ArmState::NOT_INIT);
       break;
   }

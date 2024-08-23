@@ -31,10 +31,20 @@ void setup() {
   Arm.setup();
 }
 
+ArmController::ArmState state;
+ArmController::ArmState prev_state;
+
 void loop() {
+  prev_state = state;
+  state = Arm.get_state();
+
+  if (state != prev_state){
+    Serial.print("New state: "); Serial.println(state);
+  }
+
   // TODO maybe a smarter way to trigger this. With gate variable?
-  if (Arm.get_state() == ArmController::ArmState::EXECUTING_COMMAND){
+  if (state == ArmController::ArmState::EXECUTING_COMMAND){
     Arm.do_arm_animation();
   }
-  delay(5);
+  delay(10);
 }

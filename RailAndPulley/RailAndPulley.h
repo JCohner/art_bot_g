@@ -110,8 +110,6 @@ private:
 
   /* Pins */
   const int RAIL_HOMING_PIN = 2;
-  int SWEEP_PIN = 11; // TODO: more likely this is going to be an encoder read command or hall sensor
-  int ARM_SWEEP_DONE_PIN = 8;
   AccelStepper stepperX;
   // We increment this value until it reaches home
   int initial_homing = 1; 

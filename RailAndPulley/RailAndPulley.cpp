@@ -28,33 +28,33 @@ void RailAndPulley::tick(){
       wait_for_home();
       break;
     case HOMED:
-      command_move_to_home_offset();
-      break;
-    case MOVING_TO_HOME_OFFSET:
-      wait_for_move_to_home_offset();
-      break;
-    case AT_HOME_OFFSET:
-      command_move_to_pos1();
-      break;
-    case MOVING_TO_POS1:
-      wait_for_move_to_pos1();
-      break;
-    case AT_POS1:
-      wait_at_pos1();
-      break;
-    case WAIT_AT_POS1_DONE:
-      command_move_to_pos2();
-      break;
-    case MOVING_TO_POS2:
-      wait_for_move_to_pos2();
-      break;
-    case AT_POS2:
-      command_rug_lift();
-      break;
-    case LIFTING_RUG:
-      wait_for_rug_lift(); // TODO: G make this shit happen
-      break;
-    case RUG_LIFTED:
+    //   command_move_to_home_offset();
+    //   break;
+    // case MOVING_TO_HOME_OFFSET:
+    //   wait_for_move_to_home_offset();
+    //   break;
+    // case AT_HOME_OFFSET:
+    //   command_move_to_pos1();
+    //   break;
+    // case MOVING_TO_POS1:
+    //   wait_for_move_to_pos1();
+    //   break;
+    // case AT_POS1:
+    //   wait_at_pos1();
+    //   break;
+    // case WAIT_AT_POS1_DONE:
+    //   command_move_to_pos2();
+    //   break;
+    // case MOVING_TO_POS2:
+    //   wait_for_move_to_pos2();
+    //   break;
+    // case AT_POS2:
+    //   command_rug_lift();
+    //   break;
+    // case LIFTING_RUG:
+    //   wait_for_rug_lift(); // TODO: G make this shit happen
+    //   break;
+    // case RUG_LIFTED:
       command_arm_sweep(); // TODO: G make this shit happen
       break;
     case COMMANDING_ARM:
@@ -67,15 +67,15 @@ void RailAndPulley::tick(){
       wait_for_lower_rug(); // TODO: G make this shit happen
       break;
     case RUG_LOWERED:
-      command_move_to_pos3(); 
-      break;
-    case MOVING_TO_POS3:
-      wait_for_move_to_pos3();
-      break;
-    case AT_POS3:
-      wait_at_pos3();
-      break;
-    case WAIT_AT_POS3_DONE: 
+    //   command_move_to_pos3(); 
+    //   break;
+    // case MOVING_TO_POS3:
+    //   wait_for_move_to_pos3();
+    //   break;
+    // case AT_POS3:
+    //   wait_at_pos3();
+    //   break;
+    // case WAIT_AT_POS3_DONE: 
       start_from_beggining(); // TODO: may be inelegant, start from home we can decide if theres a cooler way in future
       break;
   }
@@ -289,7 +289,7 @@ void RailAndPulley::command_arm_sweep(){
   // Here we communicate to other MCU to start sweeping arm
   arm_interaction(ArmCommandFromRP::BEGIN_SWEEPING);
   // Increment state to MOVING_TO_SWEEP
-  previous_state = current_state; // cache RUG_LIFTED
+  previous_state = RailAndPulley::State::RUG_LIFTED; // cache RUG_LIFTED
   current_state = RailAndPulley::State::COMMANDING_ARM;
 }
 

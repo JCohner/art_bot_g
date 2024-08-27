@@ -15,6 +15,7 @@ void RailAndPulley::setup(){
   setup_servo();
   Serial.println("Setup servo and stepper");
   digitalWrite(SS, HIGH); // disable Slave Select // TODO just wire slaves low as it is only one
+  SPI.usingInterrupt(255);
   SPI.begin ();
   SPI.setClockDivider(SPI_CLOCK_DIV8);//divide the clock by 8
 }
@@ -445,6 +446,8 @@ void RailAndPulley::setup_servo(){
 
 void RailAndPulley::arm_interaction(ArmCommandFromRP command){
   digitalWrite(SS, LOW); // enable Slave Select
+  SPI.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE0));
   arm_response = SPI.transfer (command); // TODO maybe the function should return thsi value as opposed to assigning to a member variable....
+  SPI.endTransaction();
   digitalWrite(SS, HIGH); // disable Slave Select
 }

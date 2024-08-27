@@ -14,9 +14,9 @@ void RailAndPulley::setup(){
   setup_stepper();
   setup_servo();
   Serial.println("Setup servo and stepper");
-   digitalWrite(SS, HIGH); // disable Slave Select // TODO just wire slaves low as it is only one
-   SPI.begin ();
-   SPI.setClockDivider(SPI_CLOCK_DIV8);//divide the clock by 8
+  digitalWrite(SS, HIGH); // disable Slave Select // TODO just wire slaves low as it is only one
+  SPI.begin ();
+  SPI.setClockDivider(SPI_CLOCK_DIV8);//divide the clock by 8
 }
 
 void RailAndPulley::tick(){
@@ -300,8 +300,9 @@ void RailAndPulley::wait_for_arm_sweep(){
     Serial.println("Wait for arm sweep...");
     previous_state = RailAndPulley::State::COMMANDING_ARM;
   }
-
+  
   arm_interaction(ArmCommandFromRP::TELL_ME_WHEN_SWEEP_DONE);
+  pulleyServo.write(PulleyPosition::LIFT);
 
   // TODO put better waiting debug
   Serial.print("Arm state: "); Serial.println(arm_response);

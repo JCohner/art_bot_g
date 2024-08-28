@@ -49,12 +49,12 @@ void RailAndPulley::tick(){
     //   wait_for_move_to_pos2();
     //   break;
     // case AT_POS2:
-    //   command_rug_lift();
-    //   break;
-    // case LIFTING_RUG:
-    //   wait_for_rug_lift(); // TODO: G make this shit happen
-    //   break;
-    // case RUG_LIFTED:
+      command_rug_lift();
+      break;
+    case LIFTING_RUG:
+      wait_for_rug_lift(); // TODO: G make this shit happen
+      break;
+    case RUG_LIFTED:
       command_arm_sweep(); // TODO: G make this shit happen
       break;
     case COMMANDING_ARM:
@@ -111,7 +111,7 @@ void RailAndPulley::wait_for_home(){
 
   // Circumventing drive for detecting home
   //NOTE: pin set to INPUT_PULLUP the switch pulls the signal down so we need to check when it goes low.
-  if (!digitalRead(RAIL_HOMING_PIN)){ 
+  if (digitalRead(RAIL_HOMING_PIN)){ 
     // increment current state to indicate home reached
     current_state = RailAndPulley::State::HOMED;
     Serial.print("HOMED at pos: "); Serial.print(initial_homing); Serial.println(" ");
@@ -261,7 +261,7 @@ void RailAndPulley::command_rug_lift(){
   // Cheff off command to lift rug
   pulleyServo.write(PulleyPosition::LIFT);
   // Increment state to LIFTING_RUG
-  previous_state = current_state; // cache AT_POS2
+  previous_state = RailAndPulley::State::AT_POS2; // cache AT_POS2
   current_state = RailAndPulley::State::LIFTING_RUG;
 }
 
@@ -274,11 +274,11 @@ void RailAndPulley::wait_for_rug_lift(){
   }
 
   // Whatever mechanism we use to detect at sweep pos
-  if (!digitalRead(PULLEY_HOME_SWITCH)){
+  if (digitalRead(PULLEY_HOME_SWITCH)){
     // increment current state to indicate at home
     current_state = RailAndPulley::State::RUG_LIFTED;
     Serial.println("RUG LIFTED, stopping motion");
-    pulleyServo.write(PulleyPosition::STOP);
+    pulleyServo.write(PulleyPosition::LIFT);
   }
 }
 
@@ -354,7 +354,7 @@ void RailAndPulley::wait_for_lower_rug(){
     Serial.println("");
     // increment current state to indicate at home
     current_state = RailAndPulley::State::RUG_LOWERED;
-    pulleyServo.write(PulleyPosition::STOP);
+    pulleyServo.write(PulleyPosition::LOWER);
     Serial.println("RUG LOWERED");
     ten_count = 0;
   }

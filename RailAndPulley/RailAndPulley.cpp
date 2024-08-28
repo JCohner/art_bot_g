@@ -278,7 +278,7 @@ void RailAndPulley::wait_for_rug_lift(){
     // increment current state to indicate at home
     current_state = RailAndPulley::State::RUG_LIFTED;
     Serial.println("RUG LIFTED, stopping motion");
-    pulleyServo.write(PulleyPosition::STOP);
+    // leave pulley servo commanding PulleyPosition::LIFT
   }
 }
 
@@ -352,7 +352,7 @@ void RailAndPulley::wait_for_lower_rug(){
     Serial.println("");
     // increment current state to indicate at home
     current_state = RailAndPulley::State::RUG_LOWERED;
-    pulleyServo.write(PulleyPosition::STOP);
+    pulleyServo.write(PulleyPosition::LOWER);
     Serial.println("RUG LOWERED");
     ten_count = 0;
   }

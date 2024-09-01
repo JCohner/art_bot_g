@@ -52,19 +52,26 @@ void RailAndPulley::tick(){
       command_rug_lift();
       break;
     case LIFTING_RUG:
-      wait_for_rug_lift(); // TODO: G make this shit happen
+      wait_for_rug_lift();
       break;
     case RUG_LIFTED:
-      command_arm_sweep(); // TODO: G make this shit happen
+      command_arm_sweep();
       break;
     case COMMANDING_ARM:
       wait_for_arm_sweep();
       break;
-    case ARM_SWEEP_DONE:
-      command_lower_rug();
-      break;
-    case COMMANDING_LOWER_RUG:
-      wait_for_lower_rug(); // TODO: G make this shit happen
+    case COMMANDING_LOWER_RUG_AND_MOVING_TO_POS3:
+      switch (pulley_state.get_state()){
+        case PulleyPositionState::RUG_LIFTED:
+          command_lower_rug();
+          break;
+        case PulleyPositionState::LOWERING_RUG:
+          wait_for_lower_rug(); // TODO: G make this shit happen
+          break;
+      }
+      // switch (rail_state.get_state()){
+
+      // }
       break;
     case RUG_LOWERED:
       command_move_to_pos3(); 
@@ -86,7 +93,7 @@ void RailAndPulley::tick(){
 void RailAndPulley::command_home(){
   Serial.println("Sending homing command..."); 
   // Cheff off homing commands 
-  ;
+  rail_state.set_state(RailPositionState::HOMING);
   // Increment state to HOMING
   current_state = RailAndPulley::State::HOMING;
 }
@@ -114,6 +121,7 @@ void RailAndPulley::wait_for_home(){
   if (!digitalRead(RAIL_HOMING_PIN)){ 
     // increment current state to indicate home reached
     current_state = RailAndPulley::State::HOMED;
+    rail_state.set_state(RailPositionState::HOMED);
     Serial.print("HOMED at pos: "); Serial.print(initial_homing); Serial.println(" ");
   }
 }
@@ -121,7 +129,8 @@ void RailAndPulley::wait_for_home(){
 // Send the command to home.offset (NOT ACTUALLY USED ATM)
 // Intended to transition from HOMED -> MOVING_TO_HOME_OFFSET state to indicate homing command sent.
 void RailAndPulley::command_move_to_home_offset(){
-  Serial.println("Sending move to home offset command..."); 
+  Serial.println("Sending move to home offset command...");
+  rail_state.set_state(RailPositionState::MOVING_TO_HOME_OFFSET);
   // Cheff off homing commands 
   // NOTE: needed setup for the ensuing operation to work
   stepperX.setCurrentPosition(0); // Set the current position as zero for now
@@ -156,6 +165,7 @@ void RailAndPulley::wait_for_move_to_home_offset(){
     // increment current state to indicate home reached
     current_state = RailAndPulley::State::AT_HOME_OFFSET;
     Serial.println("AT HOME OFFSET");
+    rail_state.set_state(RailPositionState::AT_HOME_OFFSET);
     stepperX.setCurrentPosition(HOME_CORRECTION_VALUE);  // 7600 is the furthest left end of the rail
   }
 }
@@ -166,6 +176,7 @@ void RailAndPulley::command_move_to_pos1(){
   Serial.println("Move to sweep command..."); 
   // Cheff off move to sweep command (not quite it just sets an internal count, .run() is required to actually move)  
   stepperX.moveTo(POSITION_1);
+  rail_state.set_state(RailPositionState::MOVING_TO_POS1);
 
   // Increment state to MOVING_TO_SWEEP
   previous_state = current_state; // cache AT_HOME_OFFSET
@@ -189,7 +200,8 @@ void RailAndPulley::wait_for_move_to_pos1(){
   if (pos_difference == 0){
     // increment current state to indicate at home
     current_state = RailAndPulley::State::AT_POS1;
-    Serial.println("AT SWEEP");
+    rail_state.set_state(RailPositionState::AT_POS1);
+    Serial.println("AT POS1");
   }
 }
 
@@ -219,6 +231,7 @@ void RailAndPulley::wait_at_pos1(){
     // increment current state to indicate at home
     current_state = RailAndPulley::State::WAIT_AT_POS1_DONE;
     Serial.println("Done waiting for pos 1 wait..._");
+    rail_state.set_state(RailPositionState::WAIT_AT_POS1_DONE);
     ten_count = 0;
   }
 }
@@ -227,7 +240,7 @@ void RailAndPulley::command_move_to_pos2(){
   Serial.println("Move to pos2..."); 
   // Cheff off move to sweep command (not quite it just sets an internal count, .run() is required to actually move)  
   stepperX.moveTo(POSITION_2);
-
+  rail_state.set_state(RailPositionState::MOVING_TO_POS2);
   // Increment state to MOVING_TO_SWEEP
   previous_state = current_state; // cache WAIT_AT_POS1_DONE
   current_state = RailAndPulley::State::MOVING_TO_POS2;
@@ -250,6 +263,7 @@ void RailAndPulley::wait_for_move_to_pos2(){
   if (pos_difference == 0){
     // increment current state to indicate at home
     current_state = RailAndPulley::State::AT_POS2;
+    rail_state.set_state(RailPositionState::AT_POS2);
     Serial.println("AT SWEEP POSITION");
   }
 }
@@ -260,6 +274,7 @@ void RailAndPulley::command_rug_lift(){
   Serial.println("Commanding rug lift..."); 
   // Cheff off command to lift rug
   pulleyServo.write(PulleyPosition::LIFT);
+  pulley_state.set_state(PulleyPositionState::LIFTING_RUG);
   // Increment state to LIFTING_RUG
   previous_state = current_state; // cache AT_POS2
   current_state = RailAndPulley::State::LIFTING_RUG;
@@ -279,6 +294,7 @@ void RailAndPulley::wait_for_rug_lift(){
     current_state = RailAndPulley::State::RUG_LIFTED;
     Serial.println("RUG LIFTED, stopping motion");
     pulleyServo.write(PulleyPosition::STOP);
+    pulley_state.set_state(PulleyPositionState::RUG_LIFTED);
   }
 }
 
@@ -312,7 +328,7 @@ void RailAndPulley::wait_for_arm_sweep(){
   // recv_val is populated by the value returned by the SPI trasnfer invoked in arm_interaction
   if (arm_response == ArmResponseToRP::SWEEP_DONE){
     // increment current state to indicate at home
-    current_state = RailAndPulley::State::ARM_SWEEP_DONE;
+    current_state = RailAndPulley::State::COMMANDING_LOWER_RUG_AND_MOVING_TO_POS3;
     Serial.println("Arm swept");
   }
 }
@@ -323,6 +339,8 @@ void RailAndPulley::command_lower_rug(){
   Serial.println("Commanding rug lower..."); 
   // Here we communicate to the rug pulley motor to lower rug
   pulleyServo.write(PulleyPosition::LOWER);
+  pulley_state.set_state(PulleyPositionState::LOWERING_RUG);
+
   // Increment state to COMMANDING_LOWER_RUG
   previous_state = current_state; // cache ARM_SWEEP_DONE
   current_state = RailAndPulley::State::COMMANDING_LOWER_RUG;
@@ -331,7 +349,7 @@ void RailAndPulley::command_lower_rug(){
 // Wait pulley to lower rug
 // Intended to transition from COMMANDING_LOWER_RUG -> RUG_LOWERED to indicate rug has been lowered
 void RailAndPulley::wait_for_lower_rug(){
-  if (previous_state == RailAndPulley::State::ARM_SWEEP_DONE){
+  if (pulley_state.check_edge()){
     previous_state = RailAndPulley::State::COMMANDING_LOWER_RUG;
     lift_timer = micros();
     Serial.println("Lowering rug. Current mircos ");
@@ -356,6 +374,7 @@ void RailAndPulley::wait_for_lower_rug(){
     // increment current state to indicate at home
     current_state = RailAndPulley::State::RUG_LOWERED;
     pulleyServo.write(PulleyPosition::STOP);
+    pulley_state.set_state(PulleyPositionState::RUG_LOWERED);
     Serial.println("RUG LOWERED");
     ten_count = 0;
   }

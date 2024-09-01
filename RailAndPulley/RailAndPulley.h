@@ -5,8 +5,7 @@
 #include <SPI.h>
 #include <Servo.h>
 #include "AccelStepper.h"
-
-static Servo pulleyServo; 
+#include "RailAndPulleyEnumerations.h"
 
 class RailAndPulley {
 public:
@@ -15,6 +14,8 @@ public:
   RailAndPulley() {
     previous_state = NOT_INIT;
     current_state = NOT_INIT;
+    pulley_state.set_state(PulleyPositionState::NOT_INIT);
+    rail_state.set_state(RailPositionState::NOT_HOMED);
   }
 private:
   enum State {
@@ -31,11 +32,11 @@ private:
     LIFTING_RUG, 
     RUG_LIFTED, 
     COMMANDING_ARM,
-    ARM_SWEEP_DONE,
-    COMMANDING_LOWER_RUG,
-    RUG_LOWERED,
-    MOVING_TO_POS3,
-    AT_POS3,
+    COMMANDING_LOWER_RUG_AND_MOVING_TO_POS3,
+    COMMANDING_LOWER_RUG, // should be unused
+    RUG_LOWERED, // should be unused
+    MOVING_TO_POS3, // should be unused
+    AT_POS3, // should be unused
     WAIT_AT_POS3_DONE,
   };
 
@@ -67,8 +68,11 @@ private:
     STARTING_OVER = 5
   };
 
+  // State maintainers
   volatile State previous_state; // this is largely used as a gate variable to ensure we only send command once
   volatile State current_state;
+  volatile stateful_member<PulleyPositionState> pulley_state;
+  volatile stateful_member<RailPositionState> rail_state;
 
   // stepper helper functions
   void setup_stepper();
@@ -104,21 +108,19 @@ private:
   
   void start_from_beggining();
 
-  // SPI Section 
+  // SPI Section      
   void arm_interaction(ArmCommandFromRP command);
   ArmResponseToRP arm_response;
 
   /* Pins */
   const int RAIL_HOMING_PIN = 2;
-  int SWEEP_PIN = 11; // TODO: more likely this is going to be an encoder read command or hall sensor
-  int ARM_SWEEP_DONE_PIN = 8;
-  AccelStepper stepperX;
-  // We increment this value until it reaches home
-  int initial_homing = 1; 
-
-  // Servo pulleyServo;
   const int PULLEY_SERVO_PIN = 6;
   const int PULLEY_HOME_SWITCH = 3;
+
+  AccelStepper stepperX;
+  Servo pulleyServo; 
+  // We increment this value until it reaches home
+  int initial_homing = 1; 
 
 
   unsigned long lift_timer = 0;
@@ -128,7 +130,6 @@ private:
   unsigned long LIFT_TIMER_WAIT_CENTI_SECONDS = 2000;
   unsigned long POS1_TIMER_WAIT_CENTI_SECONDS = 200;
   unsigned long POS3_TIMER_WAIT_CENTI_SECONDS = 400;
-
 
 }; 
 

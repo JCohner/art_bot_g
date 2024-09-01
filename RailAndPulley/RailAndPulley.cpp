@@ -62,17 +62,12 @@ void RailAndPulley::tick(){
       break;
     case ARM_SWEEP_DONE:
       command_lower_rug();
-      break;
-    case COMMANDING_LOWER_RUG:
-      wait_for_lower_rug(); // TODO: G make this shit happen
-      break;
-    case RUG_LOWERED:
       command_move_to_pos3(); 
       break;
-    case MOVING_TO_POS3:
-      wait_for_move_to_pos3();
+    case COMMANDING_LOWER_RUG_AND_MOVING_TO_POS_3:
+      wait_for_lower_rug_and_move_to_pos_3();
       break;
-    case AT_POS3:
+    case AT_POS3_AND_RUG_LOWERED:
       wait_at_pos3();
       break;
     case WAIT_AT_POS3_DONE: 
@@ -322,19 +317,11 @@ void RailAndPulley::command_lower_rug(){
   pulleyServo.write(PulleyPosition::LOWER);
   // Increment state to COMMANDING_LOWER_RUG
   previous_state = current_state; // cache ARM_SWEEP_DONE
-  current_state = RailAndPulley::State::COMMANDING_LOWER_RUG;
 }
 
 // Wait pulley to lower rug
 // Intended to transition from COMMANDING_LOWER_RUG -> RUG_LOWERED to indicate rug has been lowered
-void RailAndPulley::wait_for_lower_rug(){
-  if (previous_state == RailAndPulley::State::ARM_SWEEP_DONE){
-    previous_state = RailAndPulley::State::COMMANDING_LOWER_RUG;
-    lift_timer = micros();
-    Serial.println("Lowering rug. Current mircos ");
-    return; // TODO i think I can take out now
-  }
-
+bool RailAndPulley::wait_for_lower_rug(){
   // NOTE: This was really weird, counting was super difficult. For some reason at a certain point it stopped counting well ~11 million. Maybe has to do with how math was done at CPU level? Not sure play with this
   unsigned long current_ms = micros();
   long delta = current_ms - lift_timer;
@@ -351,11 +338,11 @@ void RailAndPulley::wait_for_lower_rug(){
   if (ten_count > LIFT_TIMER_WAIT_CENTI_SECONDS){
     Serial.println("");
     // increment current state to indicate at home
-    current_state = RailAndPulley::State::RUG_LOWERED;
     pulleyServo.write(PulleyPosition::STOP);
     Serial.println("RUG LOWERED");
-    ten_count = 0;
+    return true;
   }
+  return false;
 }
 
 void RailAndPulley::command_move_to_pos3(){
@@ -365,33 +352,27 @@ void RailAndPulley::command_move_to_pos3(){
 
   // Increment state to MOVING_TO_SWEEP
   previous_state = current_state; // cache RUG_LOWERED
-  current_state = RailAndPulley::State::MOVING_TO_POS3;
+  current_state = RailAndPulley::State::COMMANDING_LOWER_RUG_AND_MOVING_TO_POS_3;
 }
 
 // Wait for rail to reach sweep position
 // Intended to transition from MOVING_TO_POS2 -> AT_POS2 to indicate we have reached the sweep position
-void RailAndPulley::wait_for_move_to_pos3(){
-  // print once gate
-  if (previous_state == RailAndPulley::State::RUG_LOWERED){
-    Serial.println("Waiting for move to pos3..");
-    previous_state = RailAndPulley::State::MOVING_TO_POS3;
-  }
-
+bool RailAndPulley::wait_for_move_to_pos3(){
   // As per library specification this has to be called once per loop. We could circumevent if really needed for more constant speed thangs.
   stepperX.run();
 
   int pos_difference = RailPosition::POSITION_3 - stepperX.currentPosition();
   // Whatever mechanism we use to detect at sweep pos
   if (pos_difference == 0){
-    // increment current state to indicate at home
-    current_state = RailAndPulley::State::AT_POS3;
     Serial.println("AT POS3 POSITION");
+    return true;
   }
+  return false;
 }
 
 void RailAndPulley::wait_at_pos3(){
-  if (previous_state == RailAndPulley::State::MOVING_TO_POS3){
-    previous_state = RailAndPulley::State::AT_POS3;
+  if (previous_state == RailAndPulley::State::COMMANDING_LOWER_RUG_AND_MOVING_TO_POS_3){
+    previous_state = RailAndPulley::State::AT_POS3_AND_RUG_LOWERED;
     pos3_wait_timer = micros();
     Serial.println("Waiting at pos3");
     return; // TODO i think I can take out now
@@ -416,6 +397,23 @@ void RailAndPulley::wait_at_pos3(){
     current_state = RailAndPulley::State::WAIT_AT_POS3_DONE;
     Serial.println("Done waiting for pos 3 wait...");
     ten_count = 0;
+  }
+}
+
+void RailAndPulley::wait_for_lower_rug_and_move_to_pos_3(){
+  // print once gate
+  if (previous_state == RailAndPulley::State::ARM_SWEEP_DONE){
+    Serial.println("Waiting for move to pos3 and rug lower..");
+    previous_state = RailAndPulley::State::COMMANDING_LOWER_RUG_AND_MOVING_TO_POS_3;
+    lift_timer = micros();
+  }
+
+  // warning, im not sure if both will happen within timer interval...
+  bool both_done = wait_for_lower_rug() && wait_for_move_to_pos3();
+
+  if (both_done){
+    ten_count = 0; // critical this poorly named variable is our counter. We must now reset it here. 
+    current_state = RailAndPulley::State::AT_POS3_AND_RUG_LOWERED;
   }
 }
 

@@ -32,10 +32,8 @@ private:
     RUG_LIFTED, 
     COMMANDING_ARM,
     ARM_SWEEP_DONE,
-    COMMANDING_LOWER_RUG,
-    RUG_LOWERED,
-    MOVING_TO_POS3,
-    AT_POS3,
+    COMMANDING_LOWER_RUG_AND_MOVING_TO_POS_3,
+    AT_POS3_AND_RUG_LOWERED,
     WAIT_AT_POS3_DONE,
   };
 
@@ -90,7 +88,7 @@ private:
   void wait_for_move_to_pos2();
   
   void command_move_to_pos3();
-  void wait_for_move_to_pos3();
+  bool wait_for_move_to_pos3();
   void wait_at_pos3();
 
   void command_rug_lift();
@@ -100,8 +98,10 @@ private:
   void wait_for_arm_sweep();
   
   void command_lower_rug();
-  void wait_for_lower_rug();
+  bool wait_for_lower_rug();
   
+  void wait_for_lower_rug_and_move_to_pos_3();
+
   void start_from_beggining();
 
   // SPI Section 
@@ -110,8 +110,6 @@ private:
 
   /* Pins */
   const int RAIL_HOMING_PIN = 2;
-  int SWEEP_PIN = 11; // TODO: more likely this is going to be an encoder read command or hall sensor
-  int ARM_SWEEP_DONE_PIN = 8;
   AccelStepper stepperX;
   // We increment this value until it reaches home
   int initial_homing = 1; 

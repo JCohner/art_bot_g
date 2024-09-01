@@ -111,7 +111,7 @@ void RailAndPulley::wait_for_home(){
 
   // Circumventing drive for detecting home
   //NOTE: pin set to INPUT_PULLUP the switch pulls the signal down so we need to check when it goes low.
-  if (digitalRead(RAIL_HOMING_PIN)){ 
+  if (!digitalRead(RAIL_HOMING_PIN)){ 
     // increment current state to indicate home reached
     current_state = RailAndPulley::State::HOMED;
     Serial.print("HOMED at pos: "); Serial.print(initial_homing); Serial.println(" ");
@@ -274,11 +274,11 @@ void RailAndPulley::wait_for_rug_lift(){
   }
 
   // Whatever mechanism we use to detect at sweep pos
-  if (digitalRead(PULLEY_HOME_SWITCH)){
+  if (!digitalRead(PULLEY_HOME_SWITCH)){
     // increment current state to indicate at home
     current_state = RailAndPulley::State::RUG_LIFTED;
     Serial.println("RUG LIFTED, stopping motion");
-    pulleyServo.write(PulleyPosition::LIFT);
+    pulleyServo.write(PulleyPosition::STOP);
   }
 }
 
@@ -354,7 +354,7 @@ void RailAndPulley::wait_for_lower_rug(){
     Serial.println("");
     // increment current state to indicate at home
     current_state = RailAndPulley::State::RUG_LOWERED;
-    pulleyServo.write(PulleyPosition::LOWER);
+    pulleyServo.write(PulleyPosition::STOP);
     Serial.println("RUG LOWERED");
     ten_count = 0;
   }

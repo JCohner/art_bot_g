@@ -301,13 +301,14 @@ void RailAndPulley::wait_for_arm_sweep(){
     previous_state = RailAndPulley::State::COMMANDING_ARM;
   }
 
-  arm_interaction(ArmCommandFromRP::TELL_ME_WHEN_SWEEP_DONE);
 
   // TODO put better waiting debug
   static int print_slow = 0;
-  if ((print_slow++ % 10) == 0)
+  if ((print_slow++ % 10) == 0){
+    arm_interaction(ArmCommandFromRP::TELL_ME_WHEN_SWEEP_DONE);
     Serial.print("Arm state: "); Serial.println(arm_response);
-
+  }
+  
   // recv_val is populated by the value returned by the SPI trasnfer invoked in arm_interaction
   if (arm_response == ArmResponseToRP::SWEEP_DONE){
     // increment current state to indicate at home

@@ -22,6 +22,13 @@ public:
     prev_state = state; // .checking edge, updates or notion of last state so the edge will no longer remain
     return ret_val;
   }
+  // Check specific edge, do not increment if no match
+  bool check_edge(S_ENUM specific_previous_state) {
+    if (prev_state != specific_previous_state) return false;
+    auto ret_val = state != prev_state;
+    prev_state = state; // .checking edge, updates or notion of last state so the edge will no longer remain
+    return ret_val;
+  }
 };
 
 // Rail State Machine

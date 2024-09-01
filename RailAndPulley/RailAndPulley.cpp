@@ -69,15 +69,14 @@ void RailAndPulley::tick(){
           wait_for_lower_rug(); // TODO: G make this shit happen
           break;
       }
-      // switch (rail_state.get_state()){
-
-      // }
-      break;
-    case RUG_LOWERED:
-      command_move_to_pos3(); 
-      break;
-    case MOVING_TO_POS3:
-      wait_for_move_to_pos3();
+      switch (rail_state.get_state()){
+        case RailPositionState::AT_POS2:
+          command_move_to_pos3(); 
+          break;
+        case RailPositionState::MOVING_TO_POS3:
+          wait_for_move_to_pos3();
+          break;
+      }
       break;
     case AT_POS3:
       wait_at_pos3();
@@ -350,7 +349,6 @@ void RailAndPulley::command_lower_rug(){
 // Intended to transition from COMMANDING_LOWER_RUG -> RUG_LOWERED to indicate rug has been lowered
 void RailAndPulley::wait_for_lower_rug(){
   if (pulley_state.check_edge()){
-    previous_state = RailAndPulley::State::COMMANDING_LOWER_RUG;
     lift_timer = micros();
     Serial.println("Lowering rug. Current mircos ");
     return; // TODO i think I can take out now
@@ -372,7 +370,6 @@ void RailAndPulley::wait_for_lower_rug(){
   if (ten_count > LIFT_TIMER_WAIT_CENTI_SECONDS){
     Serial.println("");
     // increment current state to indicate at home
-    current_state = RailAndPulley::State::RUG_LOWERED;
     pulleyServo.write(PulleyPosition::STOP);
     pulley_state.set_state(PulleyPositionState::RUG_LOWERED);
     Serial.println("RUG LOWERED");
@@ -384,19 +381,17 @@ void RailAndPulley::command_move_to_pos3(){
   Serial.println("Move to pos3..."); 
   // Cheff off move to sweep command (not quite it just sets an internal count, .run() is required to actually move)  
   stepperX.moveTo(POSITION_3);
-
+  rail_state.set_state(RailPositionState::MOVING_TO_POS3);
   // Increment state to MOVING_TO_SWEEP
   previous_state = current_state; // cache RUG_LOWERED
-  current_state = RailAndPulley::State::MOVING_TO_POS3;
 }
 
 // Wait for rail to reach sweep position
 // Intended to transition from MOVING_TO_POS2 -> AT_POS2 to indicate we have reached the sweep position
 void RailAndPulley::wait_for_move_to_pos3(){
   // print once gate
-  if (previous_state == RailAndPulley::State::RUG_LOWERED){
+  if (rail_state.check_edge()){
     Serial.println("Waiting for move to pos3..");
-    previous_state = RailAndPulley::State::MOVING_TO_POS3;
   }
 
   // As per library specification this has to be called once per loop. We could circumevent if really needed for more constant speed thangs.
@@ -408,11 +403,12 @@ void RailAndPulley::wait_for_move_to_pos3(){
     // increment current state to indicate at home
     current_state = RailAndPulley::State::AT_POS3;
     Serial.println("AT POS3 POSITION");
+    rail_state.set_state(RailPositionState::AT_POS3);
   }
 }
 
 void RailAndPulley::wait_at_pos3(){
-  if (previous_state == RailAndPulley::State::MOVING_TO_POS3){
+  if (rail_state.check_edge()){
     previous_state = RailAndPulley::State::AT_POS3;
     pos3_wait_timer = micros();
     Serial.println("Waiting at pos3");

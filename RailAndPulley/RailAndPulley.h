@@ -33,9 +33,6 @@ private:
     RUG_LIFTED, 
     COMMANDING_ARM,
     COMMANDING_LOWER_RUG_AND_MOVING_TO_POS3,
-    COMMANDING_LOWER_RUG, // should be unused
-    RUG_LOWERED, // should be unused
-    MOVING_TO_POS3, // should be unused
     AT_POS3, // should be unused
     WAIT_AT_POS3_DONE,
   };

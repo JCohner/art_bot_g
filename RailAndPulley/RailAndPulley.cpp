@@ -318,7 +318,7 @@ void RailAndPulley::wait_for_arm_sweep(){
   }
 
 
-  // TODO put better waiting debug
+  // TODO this is functionally necessary, slow shit down
   static int print_slow = 0;
   if ((print_slow++ % 10) == 0){
     arm_interaction(ArmCommandFromRP::TELL_ME_WHEN_SWEEP_DONE);
@@ -342,8 +342,8 @@ void RailAndPulley::command_lower_rug(){
   pulley_state.set_state(PulleyPositionState::LOWERING_RUG);
 
   // Increment state to COMMANDING_LOWER_RUG
-  previous_state = current_state; // cache ARM_SWEEP_DONE
-  current_state = RailAndPulley::State::COMMANDING_LOWER_RUG;
+  previous_state = current_state; // cache COMMANDING_LOWER_RUG_AND_MOVING_TO_POS3
+  // current_state = RailAndPulley::State::COMMANDING_LOWER_RUG; // no longer pertubate program state
 }
 
 // Wait pulley to lower rug

@@ -442,6 +442,8 @@ void RailAndPulley::start_from_beggining(){
   initial_homing = POSITION_3;
   previous_state = NOT_INIT;
   current_state = NOT_INIT;
+  rail_state.set_state(RailPositionState::NOT_HOMED);
+  pulley_state.set_state(PulleyPositionState::NOT_INIT);
   arm_interaction(START_OVER);
 }
 

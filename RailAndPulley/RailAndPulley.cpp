@@ -16,7 +16,7 @@ void RailAndPulley::setup(){
   Serial.println("Setup servo and stepper");
    digitalWrite(SS, HIGH); // disable Slave Select // TODO just wire slaves low as it is only one
    SPI.begin ();
-   SPI.setClockDivider(SPI_CLOCK_DIV8);//divide the clock by 8
+   SPI.setClockDivider(SPI_CLOCK_DIV128);//divide the clock by 8
 }
 
 void RailAndPulley::tick(){

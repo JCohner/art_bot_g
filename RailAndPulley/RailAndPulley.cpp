@@ -111,9 +111,13 @@ void RailAndPulley::wait_for_home(){
   and then just wait to detect homing switch, this is fine for now.
   NOTE: MAKES HOMING SPEED DEPENDENT ON LOOP SPEED FOR NOW
   */
-  stepperX.moveTo(initial_homing);
-  initial_homing+=1;  
-  stepperX.run();
+  static unsigned int do_slow = 0;
+
+  if (do_slow++ % 5 == 0){
+    stepperX.moveTo(initial_homing);
+    initial_homing+=1;  
+    stepperX.run();
+  }
 
   // Circumventing drive for detecting home
   //NOTE: pin set to INPUT_PULLUP the switch pulls the signal down so we need to check when it goes low.
@@ -318,8 +322,8 @@ void RailAndPulley::wait_for_arm_sweep(){
 
 
   // TODO this is functionally necessary, slow shit down
-  static int print_slow = 0;
-  if ((print_slow++ % 10) == 0){
+  static int do_slow = 0;
+  if ((do_slow++ % 20) == 0){
     arm_interaction(ArmCommandFromRP::TELL_ME_WHEN_SWEEP_DONE);
     Serial.print("Arm state: "); Serial.println(arm_response);
   }

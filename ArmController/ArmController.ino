@@ -18,8 +18,10 @@ void setup() {
 
 void loop() {
   static int print_slow = 0;
-  if ((print_slow++ % 10) == 0)
-    Serial.print("State is: "); Serial.println(Arm.get_state());
+  if ((print_slow++ % 100) == 0){
+    Serial.print("State is: "); 
+    Serial.println(Arm.get_state());
+  }
 
   switch (Arm.get_state()){
     case ArmController::NOT_INIT:
@@ -38,9 +40,9 @@ void loop() {
       if (digitalRead(Arm.ARM_RESET_PIN)){
         Arm.set_state(ArmController::NOT_INIT);
         Serial.println("Got reset");
+        digitalWrite(Arm.ARM_DONE_SWEEPING_PIN, LOW);
       }
-      digitalWrite(Arm.ARM_DONE_SWEEPING_PIN, LOW);
       break;
   }
-  delay(5);
+  delay(10);
 }

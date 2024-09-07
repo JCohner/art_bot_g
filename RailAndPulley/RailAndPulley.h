@@ -16,6 +16,7 @@ public:
     current_state = NOT_INIT;
     pulley_state.set_state(PulleyPositionState::NOT_INIT);
     rail_state.set_state(RailPositionState::NOT_HOMED);
+    arm_state.set_state(ArmCommandState::NONE);
   }
 private:
   enum State {
@@ -70,6 +71,7 @@ private:
   volatile State current_state;
   volatile stateful_member<PulleyPositionState> pulley_state;
   volatile stateful_member<RailPositionState> rail_state;
+  volatile stateful_member<ArmCommandState> arm_state;
 
   // stepper helper functions
   void setup_stepper();
@@ -127,6 +129,11 @@ private:
   unsigned long LIFT_TIMER_WAIT_CENTI_SECONDS = 2000;
   unsigned long POS1_TIMER_WAIT_CENTI_SECONDS = 200;
   unsigned long POS3_TIMER_WAIT_CENTI_SECONDS = 400;
+
+
+  int ARM_DO_SWEEP_PIN = 13; // assert high when we want to sweep
+  int ARM_DONE_SWEEPING_PIN = 11; // asssert high when done
+  int ARM_RESET_PIN = 10;
 
 }; 
 

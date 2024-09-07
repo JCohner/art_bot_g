@@ -74,6 +74,7 @@ enum struct PulleyPositionValue {
 enum struct ArmCommandState {
   NONE,
   COMMANDING_ARM,
+  COMMAND_RECEIVED,
   ARM_SWEEP_DONE
 };
 

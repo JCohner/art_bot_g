@@ -11,30 +11,36 @@
 
 ArmController Arm;
 
-
-ISR (SPI_STC_vect) // SPI interrupt routine 
-{ 
-   ArmController::ArmCommandFromRP command = SPDR; // read byte from SPI Data Register
-
-   auto arm_response = Arm.interact(command);
-
-   // Write out to SPDR
-   SPDR = arm_response;
-}
-
 void setup() {
-  // SPI Setup
-  pinMode(MISO, OUTPUT); // have to send on master in so it set as output
-  SPCR |= _BV(SPE); // turn on SPI in slave mode
-  SPI.attachInterrupt(); // turn on interrupt
-
+  Serial.begin(9600);
   Arm.setup();
 }
 
 void loop() {
-  // TODO maybe a smarter way to trigger this. With gate variable?
-  if (Arm.get_state() == ArmController::ArmState::EXECUTING_COMMAND){
-    Arm.do_arm_animation();
+  static int print_slow = 0;
+  if ((print_slow++ % 10) == 0)
+    Serial.print("State is: "); Serial.println(Arm.get_state());
+
+  switch (Arm.get_state()){
+    case ArmController::NOT_INIT:
+      if (digitalRead(Arm.ARM_DO_SWEEP_PIN)){
+        Arm.set_state(ArmController::EXECUTING_COMMAND);
+        Serial.println("Got do sweep");
+      }
+      break;
+    case ArmController::EXECUTING_COMMAND:
+      Arm.do_arm_animation();
+      digitalWrite(Arm.ARM_DONE_SWEEPING_PIN, HIGH);
+      Serial.println("Done sweeping");
+      Arm.set_state(ArmController::DONE);
+      break;
+    case ArmController::DONE:
+      if (digitalRead(Arm.ARM_RESET_PIN)){
+        Arm.set_state(ArmController::NOT_INIT);
+        Serial.println("Got reset");
+      }
+      digitalWrite(Arm.ARM_DONE_SWEEPING_PIN, LOW);
+      break;
   }
   delay(5);
 }

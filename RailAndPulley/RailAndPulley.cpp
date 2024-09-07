@@ -14,9 +14,9 @@ void RailAndPulley::setup(){
   setup_stepper();
   setup_servo();
   Serial.println("Setup servo and stepper");
-   digitalWrite(SS, HIGH); // disable Slave Select // TODO just wire slaves low as it is only one
-   SPI.begin ();
-   SPI.setClockDivider(SPI_CLOCK_DIV8);//divide the clock by 8
+  pinMode(ARM_DO_SWEEP_PIN, OUTPUT);
+  pinMode(ARM_RESET_PIN, OUTPUT);
+  pinMode(ARM_DONE_SWEEPING_PIN, INPUT);
 }
 
 void RailAndPulley::tick(){
@@ -294,15 +294,19 @@ void RailAndPulley::wait_for_rug_lift(){
     Serial.println("RUG LIFTED, stopping motion");
     pulleyServo.write(PulleyPosition::STOP);
     pulley_state.set_state(PulleyPositionState::RUG_LIFTED);
+
+    digitalWrite(ARM_RESET_PIN, LOW); // reset of state machine for arm stuff
   }
 }
 
 // Send command MCU that controls arm to begin sweeping operation
 // Intended to transition from RUG_LIFTED -> COMMANDING_ARM to indicate command for sweep has been sent to other MCU
 void RailAndPulley::command_arm_sweep(){
+  arm_state.set_state(ArmCommandState::COMMANDING_ARM);
   Serial.println("Commanding arm sweep..."); 
   // Here we communicate to other MCU to start sweeping arm
-  arm_interaction(ArmCommandFromRP::BEGIN_SWEEPING);
+  // arm_interaction(ArmCommandFromRP::BEGIN_SWEEPING);
+  digitalWrite(ARM_DO_SWEEP_PIN, HIGH);
   // Increment state to MOVING_TO_SWEEP
   previous_state = current_state; // cache RUG_LIFTED
   current_state = RailAndPulley::State::COMMANDING_ARM;
@@ -320,15 +324,19 @@ void RailAndPulley::wait_for_arm_sweep(){
   // TODO this is functionally necessary, slow shit down
   static int print_slow = 0;
   if ((print_slow++ % 10) == 0){
-    arm_interaction(ArmCommandFromRP::TELL_ME_WHEN_SWEEP_DONE);
-    Serial.print("Arm state: "); Serial.println(arm_response);
+    // arm_interaction(ArmCommandFromRP::TELL_ME_WHEN_SWEEP_DONE);
+    Serial.print("Arm state: "); Serial.println(digitalRead(ARM_DONE_SWEEPING_PIN));
   }
   
+  
   // recv_val is populated by the value returned by the SPI trasnfer invoked in arm_interaction
-  if (arm_response == ArmResponseToRP::SWEEP_DONE){
+  // if (arm_response == ArmResponseToRP::SWEEP_DONE){
+  if (digitalRead(ARM_DONE_SWEEPING_PIN)) { // make sure arm uno raises flag appropriately
     // increment current state to indicate at home
     current_state = RailAndPulley::State::COMMANDING_LOWER_RUG_AND_MOVING_TO_POS3;
     Serial.println("Arm swept");
+    digitalWrite(ARM_DO_SWEEP_PIN, LOW); // so arm UNO can wait for rising edge again
+
   }
 }
 
@@ -444,7 +452,8 @@ void RailAndPulley::start_from_beggining(){
   current_state = NOT_INIT;
   rail_state.set_state(RailPositionState::NOT_HOMED);
   pulley_state.set_state(PulleyPositionState::NOT_INIT);
-  arm_interaction(START_OVER);
+  // arm_interaction(START_OVER);
+  digitalWrite(ARM_RESET_PIN, HIGH);
 }
 
 // Stepper related helper functions

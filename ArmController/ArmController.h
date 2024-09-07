@@ -34,14 +34,16 @@ public:
   void setup();
   void do_arm_animation();
   ArmController::ArmState get_state() {return state_;}
-  ArmController::ArmResponseToRP interact(ArmController::ArmCommandFromRP command);
-
-private:
-  void set_state(ArmState new_state) {
+  void set_state(ArmController::ArmState new_state) { 
     prevState_ = state_;
     state_ = new_state;
   }
 
+  int ARM_DO_SWEEP_PIN = 13; // assert high when we want to sweep
+  int ARM_DONE_SWEEPING_PIN = 11; // asssert high when done
+  int ARM_RESET_PIN = 10;
+
+private:
   volatile ArmState state_;
   volatile ArmState prevState_;
 
@@ -55,6 +57,8 @@ private:
   int posUpperArm = 100;
   int posElbow = 0;
   int posWrist = 30;
+
+
 
 };
 

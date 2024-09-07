@@ -7,41 +7,13 @@ void ArmController::setup(){
   Wrist.attach(9);
 
   Wrist.write(30); 
-}
 
-ArmController::ArmResponseToRP ArmController::interact(ArmCommandFromRP command){
-  auto return_val = ArmResponseToRP::NOTHING;
-  switch (command){
-    case ArmCommandFromRP::BEGIN_SWEEPING:
-      switch(state_){
-        case ArmState::NOT_INIT:
-        case ArmState::DONE:
-          return_val = ArmResponseToRP::I_AM_SWEEPING;
-          Serial.println("Got command to sweep");
-          set_state(ArmState::EXECUTING_COMMAND); // TOD: could move to begining of do_arm_animation
-          break;
-      }
-      break;
-    case ArmCommandFromRP::TELL_ME_WHEN_SWEEP_DONE:
-      switch(state_){
-        case ArmState::EXECUTING_COMMAND:
-          Serial.println("Was polled, brother I am still sweeping");
-          return_val = ArmResponseToRP::I_AM_SWEEPING;
-          break;
-        case ArmState::DONE:
-          return_val = ArmResponseToRP::SWEEP_DONE;
-          Serial.println("Brother we are done");
-          break;
-        default:
-          Serial.print("Brother you have a problem. Asking if sweep but we in state: "); Serial.println(state_);
-      }
-      break;
-    case ArmCommandFromRP::START_OVER:
-      Serial.println("Getting command to reinitilize state: ");
-      set_state(ArmState::NOT_INIT);
-      break;
-  }
-  return return_val;
+
+  pinMode(ARM_DO_SWEEP_PIN, INPUT);
+  pinMode(ARM_RESET_PIN, INPUT);
+  pinMode(ARM_DONE_SWEEPING_PIN, OUTPUT);
+
+  digitalWrite(ARM_DONE_SWEEPING_PIN, LOW);
 }
 
 void ArmController::do_arm_animation(){
@@ -186,5 +158,5 @@ void ArmController::do_arm_animation(){
     delay(25);                       // waits 15 ms for the servo to reach the position
   }
 
-  set_state(ArmState::DONE);
+  // set_state(ArmState::DONE);
 }

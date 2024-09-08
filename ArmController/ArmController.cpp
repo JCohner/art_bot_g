@@ -1,8 +1,8 @@
 #include "ArmController.h"
 
 void ArmController::setup(){
-  Shoulder.attach(6);  // attaches the servo on pin 9 to the servo object
-  UpperArm.attach(7);
+  Shoulder.attach(3);  // attaches the servo on pin 9 to the servo object
+  UpperArm.attach(4);
   Elbow.attach(8);
   Wrist.attach(9);
 

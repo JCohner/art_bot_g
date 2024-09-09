@@ -40,9 +40,9 @@ private:
 
   enum RailPosition {
     POSITION_1 = 1,
-    POSITION_2 = 2500,
-    POSITION_3 = 6600,
-    HOME_CORRECTION_VALUE = 6800
+    POSITION_2 = 500,
+    POSITION_3 = 12600,
+    HOME_CORRECTION_VALUE = 12750
   };
 
   enum PulleyPosition {
@@ -126,7 +126,7 @@ private:
   unsigned long pos1_wait_timer = 0;
   unsigned long pos3_wait_timer = 0;
   int ten_count = 0;
-  unsigned long LIFT_TIMER_WAIT_CENTI_SECONDS = 2000;
+  unsigned long LIFT_TIMER_WAIT_CENTI_SECONDS = 2200;
   unsigned long POS1_TIMER_WAIT_CENTI_SECONDS = 200;
   unsigned long POS3_TIMER_WAIT_CENTI_SECONDS = 400;
 

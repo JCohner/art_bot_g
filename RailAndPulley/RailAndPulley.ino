@@ -23,7 +23,6 @@ void setup()
   Serial.begin(9600);
 
   robot.setup();
-  while (!Serial) {;}
 }
 
 void loop()

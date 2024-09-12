@@ -48,13 +48,6 @@ enum struct RailPositionState {
   WAIT_AT_POS3_DONE
 };
 
-enum struct RailPositionValue {
-  POSITION_1 = 1,
-  POSITION_2 = 2500,
-  POSITION_3 = 6600,
-  HOME_CORRECTION_VALUE = 6800
-};
-
 // Pulley State Machine
 enum struct PulleyPositionState {
   NOT_INIT,
@@ -64,11 +57,6 @@ enum struct PulleyPositionState {
   RUG_LOWERED
 };
 
-enum struct PulleyPositionValue {
-  STOP = 94,// This is the stop value for the servo when on continuous mode
-  LIFT = 135, // In continous mode this instructs the servo to lift in the correct direction: CCW
-  LOWER = 45 // Continous mode CW command
-};
 
 // Arm State Machine
 enum struct ArmCommandState {
@@ -76,21 +64,6 @@ enum struct ArmCommandState {
   COMMANDING_ARM,
   COMMAND_RECEIVED,
   ARM_SWEEP_DONE
-};
-
-// TODO this should be defined in two places.. move up a directory and reference
-enum struct ArmCommandValue {
-  NONE = 0,
-  BEGIN_SWEEPING = 1,
-  TELL_ME_WHEN_SWEEP_DONE = 3,
-  START_OVER = 5
-};
-
-enum struct ArmResponseValue {
-  NOTHING = 0,
-  I_AM_SWEEPING = 2,
-  SWEEP_DONE = 4, 
-  STARTING_OVER = 5
 };
 
 enum struct ProgramState {

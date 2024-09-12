@@ -6,6 +6,7 @@
 #include <Servo.h>
 #include "AccelStepper.h"
 #include "RailAndPulleyEnumerations.h"
+#include "ConfigurationVariables.h"
 
 class RailAndPulley {
 public:
@@ -36,34 +37,6 @@ private:
     COMMANDING_LOWER_RUG_AND_MOVING_TO_POS3,
     AT_POS3, // should be unused
     WAIT_AT_POS3_DONE,
-  };
-
-  enum RailPosition {
-    POSITION_1 = 1,
-    POSITION_2 = 500,
-    POSITION_3 = 12600,
-    HOME_CORRECTION_VALUE = 12750
-  };
-
-  enum PulleyPosition {
-    STOP = 94,// This is the stop value for the servo when on continuous mode
-    LIFT = 135, // In continous mode this instructs the servo to lift in the correct direction: CCW
-    LOWER = 45 // Continous mode CW command
-  };
-
-  // TODO this should be defined in two places.. move up a directory and reference
-  enum ArmCommandFromRP {
-    NONE = 0,
-    BEGIN_SWEEPING = 1,
-    TELL_ME_WHEN_SWEEP_DONE = 3,
-    START_OVER = 5
-  };
-
-  enum ArmResponseToRP {
-    NOTHING = 0,
-    I_AM_SWEEPING = 2,
-    SWEEP_DONE = 4, 
-    STARTING_OVER = 5
   };
 
   // State maintainers
@@ -106,10 +79,6 @@ private:
   void wait_for_lower_rug();
   
   void start_from_beggining();
-
-  // SPI Section      
-  void arm_interaction(ArmCommandFromRP command);
-  ArmResponseToRP arm_response;
 
   /* Pins */
   const int RAIL_HOMING_PIN = 2;

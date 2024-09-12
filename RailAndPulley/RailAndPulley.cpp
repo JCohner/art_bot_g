@@ -111,10 +111,12 @@ void RailAndPulley::wait_for_home(){
   and then just wait to detect homing switch, this is fine for now.
   NOTE: MAKES HOMING SPEED DEPENDENT ON LOOP SPEED FOR NOW
   */
-  stepperX.moveTo(initial_homing);
-  initial_homing+=1;  
-  stepperX.run();
-
+  static int do_slow = 0;
+  if (do_slow++ % 2 == 0){
+    stepperX.moveTo(initial_homing);
+    initial_homing+=2;  
+    stepperX.run();
+  }
   // Circumventing drive for detecting home
   //NOTE: pin set to INPUT_PULLUP the switch pulls the signal down so we need to check when it goes low.
   if (!digitalRead(RAIL_HOMING_PIN)){ 

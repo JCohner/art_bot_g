@@ -40,7 +40,13 @@ void RailAndPulley::tick(){
       wait_for_move_to_pos1();
       break;
     case AT_POS1:
-      wait_at_pos1();
+      command_move_to_other_home();
+      break;
+    case MOVING_TO_OTHER_HOME:
+      wait_for_move_to_home_other_home();
+      break;
+    case AT_OTHER_HOME:
+      wait_at_other_home();
       break;
     case WAIT_AT_POS1_DONE:
       command_move_to_pos2();
@@ -203,14 +209,41 @@ void RailAndPulley::wait_for_move_to_pos1(){
     current_state = RailAndPulley::State::AT_POS1;
     rail_state.set_state(RailPositionState::AT_POS1);
     Serial.println("AT POS1");
+  } else if (!digitalRead(RAIL_HOMING_PIN_OTHER_END)){
+    current_state = RailAndPulley::State::AT_OTHER_HOME;
+    rail_state.set_state(RailPositionState::AT_OTHER_HOME);
+    stepperX.setCurrentPosition(0); // Set the current position as zero for now
+    Serial.println("Hit other end of rail early! Incrementing state to other home");
   }
 }
 
-void RailAndPulley::wait_at_pos1(){
-  if (previous_state == RailAndPulley::State::MOVING_TO_POS1){
-    previous_state = RailAndPulley::State::AT_POS1;
+void RailAndPulley::command_move_to_other_home(){
+  Serial.println("Moving to other home");
+  current_state = RailAndPulley::State::MOVING_TO_OTHER_HOME;
+  initial_homing = stepperX.currentPosition();
+}
+
+void RailAndPulley::wait_for_move_to_home_other_home(){
+  static int do_slow = 0;
+  if (do_slow++ % 2 == 0){
+    stepperX.moveTo(initial_homing);
+    initial_homing-=2;  
+    stepperX.run();
+  }
+
+  if (!digitalRead(RAIL_HOMING_PIN_OTHER_END)){
+    current_state = RailAndPulley::State::AT_OTHER_HOME;
+    rail_state.set_state(RailPositionState::AT_OTHER_HOME);
+    stepperX.setCurrentPosition(0); // Set the current position as zero for now
+    Serial.println("Hit other end of rail!");
+  }
+}
+
+void RailAndPulley::wait_at_other_home(){
+  if (previous_state == RailAndPulley::State::MOVING_TO_OTHER_HOME){
+    previous_state = RailAndPulley::State::AT_OTHER_HOME;
     pos1_wait_timer = micros();
-    Serial.println("Waiting at pos1");
+    Serial.println("Waiting at other home");
     return; // TODO i think I can take out now
   }
 
@@ -462,6 +495,7 @@ void RailAndPulley::setup_stepper(){
   stepperX.setMaxSpeed(200.0);  // Set Max Speed of Stepper (Slower to get better accuracy)
   stepperX.setAcceleration(200.0);  // Set Acceleration of Stepper
   pinMode(RAIL_HOMING_PIN, INPUT_PULLUP);
+  pinMode(RAIL_HOMING_PIN_OTHER_END, INPUT_PULLUP);
 }
 
 void RailAndPulley::setup_servo(){

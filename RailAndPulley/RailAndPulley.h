@@ -28,6 +28,8 @@ private:
     AT_HOME_OFFSET,  
     MOVING_TO_POS1, 
     AT_POS1,
+    MOVING_TO_OTHER_HOME,
+    AT_OTHER_HOME,
     WAIT_AT_POS1_DONE,
     MOVING_TO_POS2,
     AT_POS2, 
@@ -58,9 +60,12 @@ private:
   void command_move_to_home_offset();
   void wait_for_move_to_home_offset();
 
+  void command_move_to_other_home();
+  void wait_for_move_to_home_other_home();
+
   void command_move_to_pos1();
   void wait_for_move_to_pos1();
-  void wait_at_pos1();
+  void wait_at_other_home();
 
   void command_move_to_pos2();
   void wait_for_move_to_pos2();
@@ -82,13 +87,14 @@ private:
 
   /* Pins */
   const int RAIL_HOMING_PIN = 2;
+  const int RAIL_HOMING_PIN_OTHER_END = 4;
   const int PULLEY_SERVO_PIN = 6;
   const int PULLEY_HOME_SWITCH = 3;
 
   AccelStepper stepperX;
   Servo pulleyServo; 
   // We increment this value until it reaches home
-  int initial_homing = 1; 
+  int initial_homing = 1;  // I really abuse this to communicate position in between states
 
 
   unsigned long lift_timer = 0;

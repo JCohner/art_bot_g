@@ -40,6 +40,8 @@ enum struct RailPositionState {
   AT_HOME_OFFSET,  
   MOVING_TO_POS1,
   AT_POS1,
+  MOVING_TO_OTHER_HOME,
+  AT_OTHER_HOME,
   WAIT_AT_POS1_DONE,
   MOVING_TO_POS2,
   AT_POS2,

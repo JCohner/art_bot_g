@@ -121,8 +121,8 @@ void RailAndPulley::wait_for_home(){
   if (do_slow++ % 2 == 0){
     stepperX.moveTo(initial_homing);
     initial_homing+=2;  
-    stepperX.run();
   }
+  stepperX.run();
   // Circumventing drive for detecting home
   //NOTE: pin set to INPUT_PULLUP the switch pulls the signal down so we need to check when it goes low.
   if (!digitalRead(RAIL_HOMING_PIN)){ 
